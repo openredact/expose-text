@@ -5,9 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 pre-commit = "*"
-black = "*"
+black = "==19.10b0"
 flake8 = "*"
 pytest = "*"
+pytest-cov = "*"
 
 [packages]
 
