@@ -15,9 +15,6 @@ class TxtFormat(Format):
     def raw(self):
         return self._content
 
-    def add_alter(self, start, end, new_text):
-        self._buffer += (start, end, new_text)
-
     def apply_alters(self):
         new_content = ""
         cur = 0

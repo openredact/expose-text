@@ -29,7 +29,7 @@ class Format(ABC):
         The `start` and `end` indices are based on the current `text` content. The `text` and `raw` content are not
         changed by calling this method. To apply the changes call `apply_alters()`.
         """
-        pass
+        self._buffer += (start, end, new_text)
 
     @abstractmethod
     def apply_alters(self):
