@@ -4,7 +4,8 @@ from ._utils import AlterationsBuffer
 
 
 class Format(ABC):
-    _buffer = AlterationsBuffer()
+    def __init__(self):
+        self._buffer = AlterationsBuffer()
 
     @abstractmethod
     def load(self, raw):
