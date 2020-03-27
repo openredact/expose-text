@@ -22,7 +22,6 @@ class Format(ABC):
     def raw(self):
         """Get the current raw file content."""
 
-    @abstractmethod
     def add_alter(self, start, end, new_text):
         """Queue an alteration of the text.
 
