@@ -1,4 +1,5 @@
 from expose_text.formats._base import Format
+from expose_text.formats._utils import apply_buffer_to_text
 
 
 class TxtFormat(Format):
@@ -16,11 +17,5 @@ class TxtFormat(Format):
         return self._content
 
     def apply_alters(self):
-        new_content = ""
-        cur = 0
-        for start, end, new_text in self._buffer.sort():
-            new_content += self._content[cur:start] + new_text
-            cur = end
-        new_content += self._content[cur:]
-        self._content = new_content
+        self._content = apply_buffer_to_text(self._buffer, self._content)
         self._buffer.clear()

@@ -51,3 +51,17 @@ class AlterationsBuffer:
                 return True
 
         return False
+
+
+def apply_buffer_to_text(buffer, text):
+    """Apply all alterations from the buffer to the text.
+
+    This replaces the original text at the indices specified in the alterations by the respective altered texts.
+    """
+    new_text = ""
+    cur = 0
+    for start, end, alteration in buffer.sort():
+        new_text += text[cur:start] + alteration
+        cur = end
+    new_text += text[cur:]
+    return new_text

@@ -34,5 +34,6 @@ class Format(ABC):
     def apply_alters(self):
         """Apply all queued alterations.
 
-        After calling this method, `text` and `raw` will be updated."""
+        After calling this method, `text` and `raw` will be updated.
+        """
         pass
