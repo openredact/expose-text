@@ -23,22 +23,11 @@ def test_raw_property(format_cls, raw_txt):
     assert format_cls.raw == raw_txt
 
 
-def test_replace_text(format_cls):
-    format_cls.add_alter(0, 4, "That")
-    format_cls.apply_alters()
-    assert format_cls.text == "That is the content of a text file.\n\nWith multiple lines.\n\nTry alter me."
-
-
-def test_remove_text(format_cls):
-    format_cls.add_alter(35, 59, " ")
-    format_cls.apply_alters()
-    assert format_cls.text == "This is the content of a text file. Try alter me."
-
-
-def test_raw_after_alteration(format_cls):
+def test_alterations(format_cls):
     # all indices are for the original string (raw_txt)
     format_cls.add_alter(0, 4, "That")
     format_cls.add_alter(35, 59, " ")
     format_cls.add_alter(63, 68, "change")
     format_cls.apply_alters()
+    assert format_cls.text == "That is the content of a text file. Try change me."
     assert format_cls.raw == "That is the content of a text file. Try change me."
