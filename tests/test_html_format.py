@@ -23,13 +23,14 @@ def test_raw_property(format_cls, raw_html):
     assert format_cls.raw == raw_html
 
 
-def test_simple_replacing(format_cls):
+def test_same_length_replacing(format_cls):
+    format_cls.add_alter(0, 6, "XXXXXX")
     format_cls.add_alter(17, 18, "2")
     format_cls.apply_alters()
-    assert format_cls.text == "German paragraph 2. Glücklich macht mich …"
+    assert format_cls.text == "XXXXXX paragraph 2. Glücklich macht mich …"
     assert (
         format_cls.raw
-        == '<div class="foo">\n<h1>German paragraph</h1>\n<p>2. Gl&uuml;cklich macht mich &hellip;\n</p>\n</div>'
+        == '<div class="foo">\n<h1>XXXXXX paragraph</h1>\n<p>2. Gl&uuml;cklich macht mich &hellip;\n</p>\n</div>'
     )
 
 
