@@ -6,7 +6,7 @@ class AlterationsBuffer:
 
     >>> buffer = AlterationsBuffer()
     >>> buffer.add(0, 10, 'new_text')
-    >>> buffer += (0, 10, 'new_text')
+    >>> buffer += (10, 20, 'new_text')
 
     Access the alterations by using the iterable interface of this class.
     """
