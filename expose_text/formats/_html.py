@@ -11,8 +11,8 @@ class HtmlFormat(Format):
     _mapper = None
 
     def load(self, raw):
-        self._html = raw
-        self._mapper = Mapper(self._html)
+        self._mapper = Mapper(raw)
+        self._html = self._mapper.html
         self._text = self._mapper.text
 
     @property
@@ -29,8 +29,12 @@ class HtmlFormat(Format):
         new_html = ""
         cur = 0
         for start, end, _new_text in self._buffer.sort():
-            new_html += self._html[cur : self._mapper.text_to_html_index(start)] + _new_text
-            cur = self._mapper.text_to_html_index(end)
+            new_html += self._html[cur : self._mapper.text_to_html_index(start)] + html.escape(_new_text)
+            # inner: get the html index of last text char, outer: get the next char in html
+            cur = self._mapper.text_to_html_index(end - 1) + 1
+
+            # add any html tags that got skipped
+            new_html += self._mapper.get_skipped_tags(self._mapper.text_to_html_index(start), cur)
         new_html += self._html[cur:]
         self._html = new_html
 
@@ -43,19 +47,34 @@ class Mapper:
     _html = ""
 
     def __init__(self, html):
-        self._html = html
-        self._text_to_html_mapping = list(range(len(html)))
+        self._html = self._unescape_html(html)
+        self._text_to_html_mapping = list(range(len(self._html)))
 
-        self._text = html
+        self._text = self._html
         self._transform_html_to_text_and_create_mapping()
 
     @property
     def text(self):
         return self._text
 
+    @property
+    def html(self):
+        return self._html
+
     def text_to_html_index(self, pos_start):
         """Maps text to html indices"""
         return self._text_to_html_mapping[pos_start]
+
+    def _unescape_html(self, _html):
+        unescaped_html = ""
+        pattern = re.compile(r"&#\d{1,4};|&\w{1,6};")
+        cur = 0
+        for m in pattern.finditer(_html):
+            if m.group(0) not in ["&lt;", "&gt;", "&amp;"]:
+                unescaped_html += _html[cur : m.start()] + html.unescape(m.group(0))
+                cur = m.end()
+        unescaped_html += _html[cur:]
+        return unescaped_html
 
     def _replace_content_in_html(self, start, end, new_text):
         if len(new_text) > end - start:
@@ -70,7 +89,6 @@ class Mapper:
         self._remove_pattern(r"(^ +)|( +$)", flags=re.MULTILINE)  # leading or trailing whitespace
         self._remove_pattern(r"\n+", replace_with=" ")  # newlines
         self._remove_pattern(r"(^ +)|( +$)", flags=re.MULTILINE)  # leading or trailing whitespace
-        self._remove_pattern(r"&#\d{1,4};|&\w{1,6};", unescape=True)  # replace html special entities
 
     def _remove_pattern(self, regex, replace_with="", flags=0, unescape=False):
         pattern = re.compile(regex, flags=flags)
@@ -81,3 +99,8 @@ class Mapper:
             if unescape:
                 replace_with = html.unescape(m.group(0))
             self._replace_content_in_html(m.start(0), m.end(0), replace_with)
+
+    def get_skipped_tags(self, end, start):
+        """Get tags between end and start"""
+        pattern = re.compile(r"<[^>]*>")
+        return "\n".join(pattern.findall(self._html[end:start]))

@@ -27,6 +27,9 @@ class AlterationsBuffer:
         return len(self.buffer)
 
     def add(self, start, end, new_text):
+        if not end > start:
+            raise ValueError("end should be larger than start!")
+
         alter = (start, end, new_text)
         if self._overlaps_with_existing_alter(alter):
             raise ValueError("The given alteration overlaps with an existing one!")
