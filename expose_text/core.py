@@ -10,7 +10,7 @@ class FileWrapper:
 
     Open a file and inspect its text content.
 
-    >>> fw = FileWrapper('my_file.txt')
+    >>> fw = FileWrapper('../tests/files/doctest.txt')
     >>> fw.text
     'This is the content as string.'
 
@@ -23,7 +23,7 @@ class FileWrapper:
     'That is the content as string.'
 
     Now create a new file that looks like the original one but with the altered content.
-    >>> fw.save('altered_file.txt')
+    >>> fw.save('../tests/files/doctest_altered.txt')
     """
 
     def __init__(self, file_path):
