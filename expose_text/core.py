@@ -8,9 +8,12 @@ registry.register_formats()
 class FileWrapper:
     """A wrapper for various file formats that exposes their text content for modification.
 
+    >>> from pathlib import Path
+    >>> root = Path(__file__).parent.parent
+
     Open a file and inspect its text content.
 
-    >>> fw = FileWrapper('../tests/files/doctest.txt')
+    >>> fw = FileWrapper(root / 'tests/files/doctest.txt')
     >>> fw.text
     'This is the content as string.'
 
@@ -23,7 +26,7 @@ class FileWrapper:
     'That is the content as string.'
 
     Now create a new file that looks like the original one but with the altered content.
-    >>> fw.save('../tests/files/doctest_altered.txt')
+    >>> fw.save(root / 'tests/files/doctest_altered.txt')
     """
 
     def __init__(self, file_path):
