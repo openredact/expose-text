@@ -27,6 +27,7 @@ def test_unescaping_html():
     raw_html = '<div class="foo">\n<h1>&lt;&gt;&amp;</h1>\n<p>Gl&uuml;cklich macht mich &hellip;\n</p>\n</div>'
     format_cls = HtmlFormat()
     format_cls.load(raw_html)
+    assert format_cls.text == "&lt;&gt;&amp; Glücklich macht mich …"
     assert format_cls.raw == '<div class="foo">\n<h1>&lt;&gt;&amp;</h1>\n<p>Glücklich macht mich …\n</p>\n</div>'
 
 
@@ -58,21 +59,31 @@ def test_removing_text(format_cls):
     assert format_cls.raw == '<div class="foo">\n<h1>paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
 
 
-def test_removing_entire_tag(format_cls):
+def test_removing_entire_content_of_element(format_cls):
     format_cls.add_alter(0, 16, "")
     format_cls.apply_alters()
     assert format_cls.text == " 1. Glücklich macht mich …"
     assert format_cls.raw == '<div class="foo">\n<h1></h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
 
 
-def test_alterations_longer_than_tags(format_cls):
+def test_removing_over_element_borders(format_cls):
     format_cls.add_alter(0, 20, "")
     format_cls.apply_alters()
     assert format_cls.text == "Glücklich macht mich …"
     assert format_cls.raw == '<div class="foo">\n<h1></h1>\n<p>Glücklich macht mich …\n</p>\n</div>'
 
 
-def test_html_characters(format_cls):
+def test_replacing_over_element_borders(format_cls):
+    format_cls.add_alter(0, 20, "All content goes in the first element.")
+    format_cls.apply_alters()
+    assert format_cls.text == "All content goes in the first element.Glücklich macht mich …"
+    assert (
+        format_cls.raw
+        == '<div class="foo">\n<h1>All content goes in the first element.</h1>\n<p>Glücklich macht mich …\n</p>\n</div>'
+    )
+
+
+def test_escaping_html_characters(format_cls):
     format_cls.add_alter(0, 6, "<Language>")
     format_cls.apply_alters()
     assert format_cls.text == "<Language> paragraph 1. Glücklich macht mich …"
@@ -92,8 +103,8 @@ def test_umlauts(format_cls):
 
 def test_chained_alterations(format_cls):
     format_cls.add_alter(30, 40, "bin ich mit")
-    format_cls.add_alter(0, 6, "Deutscher")
     format_cls.add_alter(7, 19, "Paragraph:")
+    format_cls.add_alter(0, 6, "Deutscher")
     format_cls.add_alter(41, 42, "Essen")
     format_cls.apply_alters()
     assert format_cls.text == "Deutscher Paragraph: Glücklich bin ich mit Essen"
