@@ -2,7 +2,7 @@ import html
 import re
 
 from expose_text.formats._base import Format
-from expose_text.formats._markup_utils import MarkupWrapper, Mapper
+from expose_text.formats._markup_utils import MarkupModifier, Mapper
 from expose_text.formats._utils import apply_buffer_to_text
 
 
@@ -15,8 +15,9 @@ class HtmlFormat(Format):
         self._html = unescape_html(raw)
 
         mapper = HtmlMapper(self._html)
-        self._html_wrapper = MarkupWrapper(mapper)
-        self._text = self._html_wrapper.create_mapping(self._html)
+        self._text, mapping = mapper.distill_text_and_mapping()
+
+        self._html_wrapper = MarkupModifier(self._html, mapping)
 
     @property
     def text(self):
@@ -47,16 +48,14 @@ def unescape_html(_html):
 
 
 class HtmlMapper(Mapper):
-    def get_text_and_mapping(self):
-        self._remove_tags()
-        self._remove_newlines_and_whitespace()
-        return self._text, self._text_to_markup_idx
-
-    def _remove_tags(self):
+    def distill_text_and_mapping(self):
+        # remove tags
         self._remove_pattern(r"<br.*>", replace_with=" ")  # html linebreaks
         self._remove_pattern(r"<[^>]+>")  # html tags
 
-    def _remove_newlines_and_whitespace(self):
+        # remove newlines and whitespace
         self._remove_pattern(r"\n+", replace_with=" ")  # newlines
         self._remove_pattern(r"\xa0+| {2,}", replace_with=" ")  # excess and nobreaking whitespace
         self._remove_pattern(r"(^ +)|( +$)", flags=re.MULTILINE)  # leading or trailing whitespace
+
+        return self._text, self._text_to_markup_idx

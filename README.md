@@ -5,9 +5,17 @@ A Python module that exposes text for modification in multiple file types.
 ![Tests](https://github.com/langhabel/expose-text/workflows/Tests/badge.svg?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 
-html only supports utf8 and will replace special ents
+## Supported Formats
 
-## Install the pre-commit hooks for developing
+### .txt
+
+### .html
+
+Note: Only HTML in UTF-8 encoding is supported. HTML special entities will be replaced with their UTF-8 equivalent.
+
+## Development
+
+### Install the pre-commit hooks
 
 ```
 pre-commit install
@@ -19,7 +27,7 @@ To run the hooks:
 pre-commit run --all-files
 ```
 
-## Testing
+### Testing
 
 The tests can be executed with:
 ```

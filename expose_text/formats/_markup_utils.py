@@ -2,19 +2,20 @@ import html
 import re
 from abc import ABC, abstractmethod
 
-"""Utils for XML and HTML like elements and tags based languages."""
+"""Utils for markup languages with tags and elements like XML or HTML."""
 
 
-class MarkupWrapper:
-    def __init__(self, mapper):
-        self._mapper = mapper
-        self._text_to_markup_idx = []
-        self._markup = ""
+class MarkupModifier:
+    """This class takes care of altering markup."""
 
-    def create_mapping(self, _markup):
-        self._markup = _markup
-        text, self._text_to_markup_idx = self._mapper.get_text_and_mapping()
-        return text
+    def __init__(self, markup, mapping):
+        """
+        :param markup:  a string containing content in a markup language
+        :param mapping: a mapping from the indices of the contained text to its positions in the markup,
+            i.e. `mapping[text_idx] == markup_idx`
+        """
+        self._markup = markup
+        self._text_to_markup_idx = mapping
 
     def apply_buffer(self, buffer):
         new_markup = ""
@@ -25,7 +26,7 @@ class MarkupWrapper:
             # inner - 1: get the markup index of last text char, outer + 1: get the next char in markup
             cur = self._text_to_markup_idx[end - 1] + 1
 
-            # add any markup tags that got skipped (in case end spanned further than the starting element)
+            # append any markup tags that got skipped (in case end spanned further than the starting element)
             new_markup += self._get_skipped_tags(self._text_to_markup_idx[start], cur)
         new_markup += self._markup[cur:]
         self._markup = new_markup
@@ -39,17 +40,30 @@ class MarkupWrapper:
 
 
 class Mapper(ABC):
+    """This is the base for language specific classes that map markup to text and create an index mapping.
+
+    Initially `self._text` contains the markup which is then step by step removed by calls to `_remove_pattern` in
+    `get_text_and_mapping`. While removing it an index mapping is maintained that maps each index in `self._text` to its
+    position in the markup.
+    """
+
     def __init__(self, markup):
         self._text = markup
         self._markup = markup
         self._text_to_markup_idx = list(range(len(markup)))
 
     @abstractmethod
-    def get_text_and_mapping(self):
-        # implement logic here
+    def distill_text_and_mapping(self):
+        """Extract the text and create an index mapping by one or more calls to `remove_patterns`."""
         return self._text, self._text_to_markup_idx
 
     def _remove_pattern(self, regex, replace_with="", flags=0):
+        """Remove or replace patterns in the markup.
+
+        :param regex: the regex to replace
+        :param replace_with: an optional string to replace matches with
+        :param flags: optional re compile flags
+        """
         pattern = re.compile(regex, flags=flags)
         while True:
             m = re.search(pattern, self._text)
