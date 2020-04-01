@@ -5,6 +5,8 @@ A Python module that exposes text for modification in multiple file types.
 ![Tests](https://github.com/langhabel/expose-text/workflows/Tests/badge.svg?branch=master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 
+html only supports utf8 and will replace special ents
+
 ## Install the pre-commit hooks for developing
 
 ```

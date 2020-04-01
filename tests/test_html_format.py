@@ -1,6 +1,6 @@
 import pytest
 
-from expose_text.formats._html import HtmlFormat, Mapper
+from expose_text.formats._html import HtmlFormat
 
 
 @pytest.fixture
@@ -109,10 +109,3 @@ def test_chained_alterations(format_cls):
     format_cls.apply_alters()
     assert format_cls.text == "Deutscher Paragraph: Glücklich bin ich mit Essen"
     assert format_cls.raw == '<div class="foo">\n<h1>Deutscher Paragraph:</h1>\n<p> Glücklich bin ich mit Essen\n</p>\n</div>'
-
-
-def test_mapper_text_to_html_index(raw_html):
-    mapper = Mapper(raw_html)
-    assert raw_html[50:59] == mapper.text[20:29]
-    assert mapper.text_to_html_index(20) == 50
-    assert mapper.text_to_html_index(29) == 59
