@@ -2,6 +2,7 @@ import html
 import re
 
 from expose_text.formats._base import Format
+from expose_text.formats._markup_utils import MarkupWrapper, Mapper
 from expose_text.formats._utils import apply_buffer_to_text
 
 
@@ -12,7 +13,9 @@ class HtmlFormat(Format):
 
     def load(self, raw):
         self._html = unescape_html(raw)
-        self._html_wrapper = HtmlWrapper()
+
+        mapper = HtmlMapper(self._html)
+        self._html_wrapper = MarkupWrapper(mapper)
         self._text = self._html_wrapper.create_mapping(self._html)
 
     @property
@@ -43,54 +46,11 @@ def unescape_html(_html):
     return unescaped_html
 
 
-class HtmlWrapper:
-    def __init__(self):
-        self._text_to_html_idx = []
-        self._html = ""
-
-    def create_mapping(self, _html):
-        self._html = _html
-
-        html_to_text = HtmlToTextTransformer()
-        text, self._text_to_html_idx = html_to_text.transform_to_text_and_create_mapping(_html)
-        return text
-
-    def apply_buffer(self, buffer):
-        new_html = ""
-        cur = 0
-        for start, end, new_text in buffer.sort():
-            new_html += self._html[cur : self._text_to_html_idx[start]] + html.escape(new_text)
-
-            # inner - 1: get the html index of last text char, outer + 1: get the next char in html
-            cur = self._text_to_html_idx[end - 1] + 1
-
-            # add any html tags that got skipped (in case end spanned further than the starting element)
-            new_html += self._get_skipped_tags(self._text_to_html_idx[start], cur)
-        new_html += self._html[cur:]
-        self._html = new_html
-        return self._html
-
-    def _get_skipped_tags(self, start, end):
-        """Return all tags between start and end."""
-        pattern = re.compile(r"<[^>]*>")
-        tags = pattern.findall(self._html[start:end])
-        return "\n".join(tags)
-
-
-class HtmlToTextTransformer:
-    def __init__(self):
-        self._text_to_html_idx = []
-        self._text = ""
-        self._html = ""
-
-    def transform_to_text_and_create_mapping(self, _html):
-        self._text = _html
-        self._html = _html
-
-        self._text_to_html_idx = list(range(len(_html)))
+class HtmlMapper(Mapper):
+    def get_text_and_mapping(self):
         self._remove_tags()
         self._remove_newlines_and_whitespace()
-        return self._text, self._text_to_html_idx
+        return self._text, self._text_to_markup_idx
 
     def _remove_tags(self):
         self._remove_pattern(r"<br.*>", replace_with=" ")  # html linebreaks
@@ -100,18 +60,3 @@ class HtmlToTextTransformer:
         self._remove_pattern(r"\n+", replace_with=" ")  # newlines
         self._remove_pattern(r"\xa0+| {2,}", replace_with=" ")  # excess and nobreaking whitespace
         self._remove_pattern(r"(^ +)|( +$)", flags=re.MULTILINE)  # leading or trailing whitespace
-
-    def _remove_pattern(self, regex, replace_with="", flags=0):
-        pattern = re.compile(regex, flags=flags)
-        while True:
-            m = re.search(pattern, self._text)
-            if m is None:
-                break
-
-            self._replace_content_in_html(m.start(0), m.end(0), replace_with)
-
-    def _replace_content_in_html(self, start, end, new_text):
-        if len(new_text) > end - start:
-            raise NotImplementedError()
-        self._text = self._text[:start] + new_text + self._text[end:]
-        del self._text_to_html_idx[start + len(new_text) : end]
