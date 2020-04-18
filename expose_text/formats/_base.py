@@ -7,6 +7,11 @@ class Format(ABC):
     def __init__(self):
         self._buffer = AlterationsBuffer()
 
+    @staticmethod
+    def get_read_mode():
+        """This mode is used with open() for reading files (chose "r" or "rb")"""
+        return 'r'
+
     @abstractmethod
     def load(self, raw):
         """Load the raw file content into the internal representation."""
@@ -38,3 +43,9 @@ class Format(ABC):
         After calling this method, `text` and `raw` will be updated.
         """
         pass
+
+
+class CustomWriterFormat(ABC):
+    @abstractmethod
+    def write(self, file_path):
+        raise NotImplementedError()

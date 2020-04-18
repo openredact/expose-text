@@ -18,6 +18,7 @@ class Registry:
 
     def register_formats(self):
         self._register(".txt", "expose_text.formats._txt.TxtFormat")
+        self._register(".pdf", "expose_text.formats._pdf.PdfFormat")
 
     def _register(self, key, class_path):
         module_path, class_name = class_path.rsplit(".", 1)
