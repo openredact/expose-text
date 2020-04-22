@@ -65,7 +65,7 @@ class RedactorOptions:
     # When replacement text isn't likely to have a glyph stored in the PDF's fonts,
     # replace the character with these other characters (if they don't have the same
     # problem):
-    content_replacement_glyphs = ['?', '#', '*', ' ']
+    content_replacement_glyphs = ["?", "#", "*", " "]
 
     # The link filters are run on link annotations. Each link filter is a function
     # that is passed the link target (a string holding a URI) and a second argujment
@@ -123,7 +123,6 @@ def update_metadata(trailer, options):
     # Title, Author, Subject, Keywords, Creator, Producer, CreationDate, and ModDate
     # (the latter two containing Date values, the rest strings).
 
-    import codecs
     from pdfrw.objects import PdfString, PdfName
 
     # Create the metadata dict if it doesn't exist, since the caller may be adding fields.
@@ -132,8 +131,9 @@ def update_metadata(trailer, options):
 
     # Get a list of all metadata fields that exist in the PDF plus any fields
     # that there are metadata filters for (since they may insert field values).
-    keys = set(str(k)[1:] for k in trailer.Info.keys()) \
-           | set(k for k in options.metadata_filters.keys() if k not in ("DEFAULT", "ALL"))
+    keys = set(str(k)[1:] for k in trailer.Info.keys()) | set(
+        k for k in options.metadata_filters.keys() if k not in ("DEFAULT", "ALL")
+    )
 
     # Update each metadata field.
     for key in keys:
@@ -158,7 +158,7 @@ def update_metadata(trailer, options):
             value = f(value)
 
             # Convert Python data type to PdfString.
-            if isinstance(value, str) or (sys.version_info < (3,) and isinstance(value, unicode)):
+            if isinstance(value, str) or (sys.version_info < (3,)):  # and isinstance(value, unicode)):
                 # Convert string to a PdfString instance.
                 value = PdfString.from_unicode(value)
 
@@ -175,8 +175,10 @@ def update_metadata(trailer, options):
                 pass
 
             else:
-                raise ValueError("Invalid type of value returned by metadata_filter function. %s was returned by %s." %
-                                 (repr(value), f.__name__ or "anonymous function"))
+                raise ValueError(
+                    "Invalid type of value returned by metadata_filter function. %s was returned by %s."
+                    % (repr(value), f.__name__ or "anonymous function")
+                )
 
             # Replace value.
             trailer.Info[PdfName(key)] = value
@@ -186,6 +188,7 @@ def update_xmp_metadata(trailer, options):
     if trailer.Root.Metadata:
         # Safely parse the existing XMP data.
         from defusedxml.ElementTree import fromstring
+
         value = fromstring(trailer.Root.Metadata.stream)
     else:
         # There is no XMP metadata in the document.
@@ -208,15 +211,15 @@ def update_xmp_metadata(trailer, options):
             # Use a default serializer based on xml.etree.ElementTree.tostring.
             def serializer(xml_root):
                 import xml.etree.ElementTree
-                if hasattr(xml.etree.ElementTree, 'register_namespace'):
+
+                if hasattr(xml.etree.ElementTree, "register_namespace"):
                     # Beginning with Python 3.2 we can define namespace prefixes.
                     xml.etree.ElementTree.register_namespace("xmp", "adobe:ns:meta/")
                     xml.etree.ElementTree.register_namespace("pdf13", "http://ns.adobe.com/pdf/1.3/")
                     xml.etree.ElementTree.register_namespace("xap", "http://ns.adobe.com/xap/1.0/")
                     xml.etree.ElementTree.register_namespace("dc", "http://purl.org/dc/elements/1.1/")
                     xml.etree.ElementTree.register_namespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-                return xml.etree.ElementTree.tostring(xml_root,
-                                                      encoding='unicode' if sys.version_info >= (3, 0) else None)
+                return xml.etree.ElementTree.tostring(xml_root, encoding="unicode" if sys.version_info >= (3, 0) else None)
 
         # Create a fresh Metadata dictionary and serialize the XML into it.
         trailer.Root.Metadata = PdfDict()
@@ -232,8 +235,7 @@ class InlineImage(PdfDict):
         # single white-space character, and the next character is
         # interpreted as the first byte of image data.
         if tokens.current[0][1] > tokens.current[0][0] + 3:
-            tokens.current[0] = (tokens.current[0][0],
-                                 tokens.current[0][0] + 3)
+            tokens.current[0] = (tokens.current[0][0], tokens.current[0][0] + 3)
 
         start = tokens.floc
         state = 0
@@ -279,6 +281,7 @@ def tokenize_streams(streams):
     # to collapse arrays ([ .. ]) and dictionaries (<< ... >>) into single
     # token entries.
     from pdfrw import PdfTokens, PdfArray
+
     stack = []
     for stream in streams:
         tokens = PdfTokens(stream)
@@ -393,7 +396,8 @@ def build_text_layer(document, options):
             return "Token<%s>" % repr(self.value)
 
     def process_text(token):
-        if token.value == "": return
+        if token.value == "":
+            return
         text_tokens.append(token)
 
     # For each page...
@@ -499,12 +503,14 @@ class CMap(object):
         # Decompress the CMap stream & check that it's not compressed in a way
         # we can't understand.
         from pdfrw.uncompress import uncompress as uncompress_streams
+
         uncompress_streams([cmap])
 
         # print(cmap.stream, file=sys.stderr)
 
         # This is based on https://github.com/euske/pdfminer/blob/master/pdfminer/cmapdb.py.
         from pdfrw import PdfString, PdfArray
+
         in_cmap = False
         operand_stack = []
         codespacerange = []
@@ -515,6 +521,7 @@ class CMap(object):
             if sys.version_info < (3,):
                 code = (ord(c) for c in code)
             from functools import reduce
+
             return reduce(lambda x0, x: x0 * 256 + x, (b for b in code))
 
         def add_mapping(code, char, offset=0):
@@ -543,15 +550,16 @@ class CMap(object):
             # two-byte Unicode code points.
             if isinstance(char, PdfString):
                 char = char.to_bytes()
-                if sys.version_info < (3,): char = (ord(c) for c in char)
+                if sys.version_info < (3,):
+                    char = (ord(c) for c in char)
 
                 c = ""
                 for xh, xl in chunk_pairs(list(char)):
-                    c += (chr if sys.version_info >= (3,) else unichr)(xh * 256 + xl)
+                    c += chr(xh * 256 + xl)
                 char = c
 
                 if offset > 0:
-                    char = char[0:-1] + (chr if sys.version_info >= (3,) else unichr)(ord(char[-1]) + offset)
+                    char = char[0:-1] + chr(ord(char[-1]) + offset)
             else:
                 assert offset == 0
 
@@ -586,7 +594,8 @@ class CMap(object):
                 operand_stack[:] = []
             elif token in ("endcidrange", "endbfrange"):
                 for (code1, code2, cid_or_name1) in chunk_triples(operand_stack):
-                    if not isinstance(code1, PdfString) or not isinstance(code2, PdfString): continue
+                    if not isinstance(code1, PdfString) or not isinstance(code2, PdfString):
+                        continue
                     code1 = code_to_int(code1)
                     code2 = code_to_int(code2)
                     for code in range(code1, code2 + 1):
@@ -597,7 +606,8 @@ class CMap(object):
                 operand_stack[:] = []
             elif token in ("endcidchar", "endbfchar"):
                 for (code, char) in chunk_pairs(operand_stack):
-                    if not isinstance(code, PdfString): continue
+                    if not isinstance(code, PdfString):
+                        continue
                     add_mapping(code_to_int(code), char)
                 operand_stack[:] = []
 
@@ -615,15 +625,15 @@ class CMap(object):
 
     def decode(self, string):
         ret = []
-        i = 0;
+        i = 0
         while i < len(string):
-            if string[i:i + 1] in self.bytes_to_unicode:
+            if string[i : i + 1] in self.bytes_to_unicode:
                 # byte matches a single-byte entry
-                ret.append(self.bytes_to_unicode[string[i:i + 1]])
+                ret.append(self.bytes_to_unicode[string[i : i + 1]])
                 i += 1
-            elif string[i:i + 2] in self.bytes_to_unicode:
+            elif string[i : i + 2] in self.bytes_to_unicode:
                 # next two bytes matches a multi-byte entry
-                ret.append(self.bytes_to_unicode[string[i:i + 2]])
+                ret.append(self.bytes_to_unicode[string[i : i + 2]])
                 i += 2
             else:
                 ret.append("?")
@@ -647,6 +657,7 @@ def toUnicode(string, font, fontcache):
         # Decompress the CMap stream & check that it's not compressed in a way
         # we can't understand.
         from pdfrw.uncompress import uncompress as uncompress_streams
+
         uncompress_streams([font.ToUnicode])
 
         # Use the CMap, which maps character codes to Unicode code points.
@@ -733,13 +744,16 @@ def update_text_layer(options, text_tokens, page_tokens):
                 # Find the original tokens in the content stream that
                 # produced the matched text. Start by advancing over any
                 # tokens that are entirely before this span of text.
-                while text_tokens_index < len(text_tokens) and \
-                        text_tokens_charpos + len(text_tokens[text_tokens_index].value) - text_tokens_token_xdiff <= i1:
+                while (
+                    text_tokens_index < len(text_tokens)
+                    and text_tokens_charpos + len(text_tokens[text_tokens_index].value) - text_tokens_token_xdiff <= i1
+                ):
                     text_tokens_charpos += len(text_tokens[text_tokens_index].value) - text_tokens_token_xdiff
                     text_tokens_index += 1
                     text_tokens_token_xdiff = 0
-                if text_tokens_index == len(text_tokens): break
-                assert (text_tokens_charpos <= i1)
+                if text_tokens_index == len(text_tokens):
+                    break
+                assert text_tokens_charpos <= i1
 
                 # The token at text_tokens_index, and possibly subsequent ones,
                 # are responsible for this text. Replace the matched content
@@ -767,8 +781,9 @@ def update_text_layer(options, text_tokens, page_tokens):
                     replacement = None  # sanity
 
                 # Do the replacement.
-                tok.value = tok.value[:mpos + text_tokens_token_xdiff] + r + tok.value[
-                                                                             mpos + mlen + text_tokens_token_xdiff:]
+                tok.value = (
+                    tok.value[: mpos + text_tokens_token_xdiff] + r + tok.value[mpos + mlen + text_tokens_token_xdiff :]
+                )
                 text_tokens_token_xdiff += len(r) - mlen
 
                 # Advance for next iteration.
@@ -779,8 +794,10 @@ def apply_updated_text(document, text_tokens, page_tokens):
     # Create a new content stream for each page by concatenating the
     # tokens in the page_tokens lists.
     from pdfrw import PdfArray
+
     for i, page in enumerate(document.pages):
-        if page.Contents is None: continue  # nothing was here
+        if page.Contents is None:
+            continue  # nothing was here
 
         # Replace the page's content stream with our updated tokens.
         # The content stream may have been an array of streams before,
@@ -790,8 +807,7 @@ def apply_updated_text(document, text_tokens, page_tokens):
             if isinstance(tok, PdfArray):
                 return "[ " + " ".join(tok_str(x) for x in tok) + "] "
             if isinstance(tok, InlineImage):
-                return "BI " + " ".join(
-                    tok_str(x) + " " + tok_str(y) for x, y in tok.items()) + " ID " + tok.stream + " EI "
+                return "BI " + " ".join(tok_str(x) + " " + tok_str(y) for x, y in tok.items()) + " ID " + tok.stream + " EI "
             if isinstance(tok, PdfDict):
                 return "<< " + " ".join(tok_str(x) + " " + tok_str(y) for x, y in tok.items()) + ">> "
             return str(tok)
@@ -803,13 +819,12 @@ def apply_updated_text(document, text_tokens, page_tokens):
 
 def update_annotations(document, options):
     for page in document.pages:
-        if hasattr(page, 'Annots') and isinstance(page.Annots, list):
+        if hasattr(page, "Annots") and isinstance(page.Annots, list):
             for annotation in page.Annots:
                 update_annotation(annotation, options)
 
 
 def update_annotation(annotation, options):
-    import re
     from pdfrw.objects import PdfString
 
     # Contents holds a plain-text representation of the annotation
@@ -845,6 +860,7 @@ def update_annotation(annotation, options):
 # have text. But since they're intended for redaction... maybe we
 # should keep them anyway.
 
+
 def update_annotation_action(annotation, action, options):
     from pdfrw.objects import PdfString
 
@@ -865,4 +881,3 @@ def update_annotation_action(annotation, action, options):
             next_action = [action.Next]
         for a in next_action:
             update_annotation_action(annotation, a, options)
-

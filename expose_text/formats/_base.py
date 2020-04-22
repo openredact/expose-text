@@ -10,7 +10,7 @@ class Format(ABC):
     @staticmethod
     def get_read_mode():
         """This mode is used with open() for reading files (chose "r" or "rb")"""
-        return 'r'
+        return "r"
 
     @abstractmethod
     def load(self, raw):

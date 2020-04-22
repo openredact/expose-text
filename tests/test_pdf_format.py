@@ -1,31 +1,33 @@
-from unittest import TestCase
-
 from pathlib import Path
+
+import pytest
 
 from expose_text import FileWrapper
 
 
-class PdfFormatTest(TestCase):
-    tmp_files = Path(__file__).parent / 'files' / 'tmp'
-    test_files = Path(__file__).parent / 'files' / 'pdf'
+@pytest.fixture
+def tmp_files():
+    return Path(__file__).parent / "files" / "tmp"
 
-    def setUp(self) -> None:
-        pass
 
-    def test_pdf_text(self):
-        input_fp = self.test_files / 'doc.pdf'
-        output_fp = self.tmp_files / 'doc.altered.pdf'
+@pytest.fixture
+def test_files():
+    return Path(__file__).parent / "files" / "pdf"
 
-        fw = FileWrapper(input_fp)
 
-        print(fw.text[:100])
+def test_pdf_text(tmp_files, test_files):
+    input_fp = test_files / "doc.pdf"
+    output_fp = tmp_files / "doc.altered.pdf"
 
-        fw.add_alter(0, 9, 'XXXXXXX')  # replace "Deutscher"
-        fw.apply_alters()
+    fw = FileWrapper(input_fp)
 
-        print(fw.text[:100])
+    print(fw.text[:100])
 
-        self.assertEqual('XXXXXXX', fw.text[0:7])  # TODO there is something wrong with indexing
+    fw.add_alter(0, 9, "XXXXXXX")  # replace "Deutscher"
+    fw.apply_alters()
 
-        fw.save(output_fp)
+    print(fw.text[:100])
 
+    assert "XXXXXXX" == fw.text[0:7]  # TODO there is something wrong with indexing
+
+    fw.save(output_fp)
