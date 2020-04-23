@@ -1,6 +1,7 @@
 import os
 
 from expose_text.formats import registry
+from expose_text.formats._base import Format, CustomWriterFormat
 
 registry.register_formats()
 
@@ -32,11 +33,11 @@ class FileWrapper:
     def __init__(self, file_path):
         _, extension = os.path.splitext(file_path)
         format_cls = registry.find_format(extension)
+        self.file = format_cls()  # type: Format
 
-        with open(file_path, "r") as f:
+        with open(file_path, self.file.get_read_mode()) as f:
             raw = f.read()
 
-        self.file = format_cls()
         self.file.load(raw)
 
     @property
@@ -58,5 +59,9 @@ class FileWrapper:
 
     def save(self, file_path):
         """Save the file to disk."""
+
+        if isinstance(self.file, CustomWriterFormat):
+            return self.file.write(file_path)
+
         with open(file_path, "w") as f:
             f.write(self.file.raw)
