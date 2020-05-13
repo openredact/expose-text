@@ -8,9 +8,9 @@ class Format(ABC):
         self._buffer = AlterationsBuffer()
 
     @staticmethod
-    def get_read_mode():
-        """This mode is used with open() for reading files (chose "r" or "rb")"""
-        return "r"
+    def is_binary():
+        """Whether the file is read in written in binary format or as string."""
+        return False
 
     @abstractmethod
     def load(self, raw):
@@ -43,9 +43,3 @@ class Format(ABC):
         After calling this method, `text` and `raw` will be updated.
         """
         pass
-
-
-class CustomWriterFormat(ABC):
-    @abstractmethod
-    def write(self, file_path):
-        raise NotImplementedError()

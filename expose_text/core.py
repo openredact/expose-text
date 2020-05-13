@@ -1,12 +1,50 @@
+import locale
 import os
 
 from expose_text.formats import registry
-from expose_text.formats._base import Format, CustomWriterFormat
+from expose_text.formats._base import Format
 
 registry.register_formats()
 
 
-class FileWrapper:
+class BinaryWrapper:  # TODO add tests
+    """TODO"""
+
+    def __init__(self, _bytes, _format):
+        format_cls = registry.find_format(_format)
+        self.file = format_cls()  # type: Format
+        if self.file.is_binary():
+            self.file.load(_bytes)
+        else:
+            self.file.load(_bytes.decode(locale.getpreferredencoding()))
+
+    @property
+    def text(self):
+        """Returns the text content of the file."""
+        return self.file.text
+
+    @property
+    def bytes(self):
+        """TODO"""
+        if type(self.file.raw) is not bytes:
+            return self.file.raw.encode(locale.getpreferredencoding())
+        else:
+            return self.file.raw
+
+    def add_alter(self, start, end, text):
+        """Queue a new change up for alteration.
+
+        The `start` and `end` indices refer to the current value of the `text` property. Apply the queued alterations
+        by calling `apply_alters()`.
+        """
+        self.file.add_alter(start, end, text)
+
+    def apply_alters(self):
+        """Apply all queued alterations."""
+        self.file.apply_alters()
+
+
+class FileWrapper(BinaryWrapper):
     """A wrapper for various file formats that exposes their text content for modification.
 
     >>> from pathlib import Path
@@ -32,36 +70,17 @@ class FileWrapper:
 
     def __init__(self, file_path):
         _, extension = os.path.splitext(file_path)
-        format_cls = registry.find_format(extension)
-        self.file = format_cls()  # type: Format
 
-        with open(file_path, self.file.get_read_mode()) as f:
-            raw = f.read()
+        with open(file_path, "rb") as f:
+            _bytes = f.read()
 
-        self.file.load(raw)
-
-    @property
-    def text(self):
-        """Returns the text content of the file."""
-        return self.file.text
-
-    def add_alter(self, start, end, new_text):
-        """Queue a new change up for alteration.
-
-        The `start` and `end` indices refer to the current value of the `text` property. Apply the queued alterations
-        by calling `apply_alters()`.
-        """
-        self.file.add_alter(start, end, new_text)
-
-    def apply_alters(self):
-        """Apply all queued alterations."""
-        self.file.apply_alters()
+        super().__init__(_bytes, extension)
 
     def save(self, file_path):
         """Save the file to disk."""
+        mode = "w"
+        if self.file.is_binary():
+            mode += "b"
 
-        if isinstance(self.file, CustomWriterFormat):
-            return self.file.write(file_path)
-
-        with open(file_path, "w") as f:
+        with open(file_path, mode) as f:
             f.write(self.file.raw)

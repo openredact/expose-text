@@ -11,9 +11,9 @@ def test_files():
     return Path(__file__).parent / "files"
 
 
-def test_unsupported_format():
+def test_unsupported_format(test_files):
     with pytest.raises(UnsupportedFormat):
-        FileWrapper("foo.bar")
+        FileWrapper(test_files / "foo.bar")
 
 
 def test_load_and_save_for_path(test_files, tmp_path):

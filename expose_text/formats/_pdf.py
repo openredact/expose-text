@@ -2,12 +2,12 @@ import io
 
 from pdfrw import PdfReader, PdfDict, PdfWriter
 
-from expose_text.formats._base import Format, CustomWriterFormat
+from expose_text.formats._base import Format
 from expose_text.formats.pdf import pdf_redactor
 from expose_text.formats.pdf.pdf_redactor import InlineImage, RedactorOptions
 
 
-class PdfFormat(Format, CustomWriterFormat):
+class PdfFormat(Format):
     """
 
     Mostly based on https://github.com/JoshData/pdf-redactor
@@ -20,8 +20,8 @@ class PdfFormat(Format, CustomWriterFormat):
     page_tokens = None
 
     @staticmethod
-    def get_read_mode():
-        return "rb"
+    def is_binary():
+        return True
 
     def load(self, raw):
         self.options = pdf_redactor.RedactorOptions()
@@ -138,11 +138,3 @@ class PdfFormat(Format, CustomWriterFormat):
             page.Contents.Length = len(page.Contents.stream)  # reset
 
         self._buffer.clear()
-
-    def write(self, file_path):
-        """Use PdfWriter for output"""
-        writer = PdfWriter()
-        writer.trailer = self.document
-
-        with open(file_path, "wb") as f:
-            writer.write(f)
