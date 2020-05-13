@@ -1,3 +1,5 @@
+import io
+
 from pdfrw import PdfReader, PdfDict, PdfWriter
 
 from expose_text.formats._base import Format, CustomWriterFormat
@@ -34,7 +36,11 @@ class PdfFormat(Format, CustomWriterFormat):
 
     @property
     def raw(self):
-        return self.document
+        stream = io.BytesIO()
+        writer = PdfWriter()
+        writer.trailer = self.document
+        writer.write(stream)
+        return stream.getvalue()
 
     def apply_alters(self):
         # Finding all matches...
