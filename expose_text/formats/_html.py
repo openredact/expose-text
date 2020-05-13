@@ -5,14 +5,16 @@ from expose_text.formats._base import Format
 from expose_text.formats._markup_utils import MarkupModifier, Mapper
 from expose_text.formats._utils import apply_buffer_to_text
 
+ENCODING = "UTF-8"
+
 
 class HtmlFormat(Format):
     _html = ""
     _text = ""
     _html_wrapper = None
 
-    def load(self, raw):
-        self._html = unescape_html(raw)
+    def load(self, _bytes):
+        self._html = unescape_html(_bytes.decode(ENCODING))
 
         mapper = HtmlMapper(self._html)
         self._text, mapping = mapper.distill_text_and_mapping()
@@ -24,8 +26,8 @@ class HtmlFormat(Format):
         return self._text
 
     @property
-    def raw(self):
-        return self._html
+    def bytes(self):
+        return self._html.encode(ENCODING)
 
     def apply_alters(self):
         self._text = apply_buffer_to_text(self._buffer, self._text)

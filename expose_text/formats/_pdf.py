@@ -19,15 +19,11 @@ class PdfFormat(Format):
     text_tokens = None
     page_tokens = None
 
-    @staticmethod
-    def is_binary():
-        return True
-
-    def load(self, raw):
+    def load(self, _bytes):
         self.options = pdf_redactor.RedactorOptions()
-        self.options.input_stream = raw
+        self.options.input_stream = _bytes
 
-        self.document = PdfReader(fdata=raw)
+        self.document = PdfReader(fdata=_bytes)
         self.text_tokens, self.page_tokens = pdf_redactor.build_text_layer(self.document, self.options)
 
     @property
@@ -35,7 +31,7 @@ class PdfFormat(Format):
         return "".join(t.value for t in self.text_tokens)
 
     @property
-    def raw(self):
+    def bytes(self):
         stream = io.BytesIO()
         writer = PdfWriter()
         writer.trailer = self.document

@@ -1,76 +1,93 @@
 import pytest
 
-from expose_text.formats._html import HtmlFormat
+from expose_text.formats._html import HtmlFormat, ENCODING
 
 
 @pytest.fixture
-def raw_html():
-    return '<div class="foo">\n<h1>German paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+def html_bytes():
+    return '<div class="foo">\n<h1>German paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(ENCODING)
 
 
 @pytest.fixture()
-def format_cls(raw_html):
+def format_cls(html_bytes):
     format_cls = HtmlFormat()
-    format_cls.load(raw_html)
+    format_cls.load(html_bytes)
     return format_cls
 
 
-def test_text_property(format_cls, raw_html):
+def test_text_property(format_cls, html_bytes):
     assert format_cls.text == "German paragraph 1. Glücklich macht mich …"
 
 
-def test_raw_property(format_cls):
-    assert format_cls.raw == '<div class="foo">\n<h1>German paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+def test_bytes_property(format_cls):
+    assert (
+        format_cls.bytes
+        == '<div class="foo">\n<h1>German paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(ENCODING)
+    )
 
 
 def test_unescaping_html():
-    raw_html = '<div class="foo">\n<h1>&lt;&gt;&amp;</h1>\n<p>Gl&uuml;cklich macht mich &hellip;\n</p>\n</div>'
+    html_bytes = '<div class="foo">\n<h1>&lt;&gt;&amp;</h1>\n<p>Gl&uuml;cklich macht mich &hellip;\n</p>\n</div>'.encode(
+        ENCODING
+    )
     format_cls = HtmlFormat()
-    format_cls.load(raw_html)
+    format_cls.load(html_bytes)
     assert format_cls.text == "&lt;&gt;&amp; Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1>&lt;&gt;&amp;</h1>\n<p>Glücklich macht mich …\n</p>\n</div>'
+    assert format_cls.bytes == '<div class="foo">\n<h1>&lt;&gt;&amp;</h1>\n<p>Glücklich macht mich …\n</p>\n</div>'.encode(
+        ENCODING
+    )
 
 
 def test_same_length_replacing(format_cls):
     format_cls.add_alter(0, 6, "XXXXXX")
     format_cls.apply_alters()
     assert format_cls.text == "XXXXXX paragraph 1. Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1>XXXXXX paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+    assert (
+        format_cls.bytes
+        == '<div class="foo">\n<h1>XXXXXX paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(ENCODING)
+    )
 
 
 def test_replacing_with_longer_text(format_cls):
     format_cls.add_alter(0, 6, "XXXXXXXXX")
     format_cls.apply_alters()
     assert format_cls.text == "XXXXXXXXX paragraph 1. Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1>XXXXXXXXX paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+    assert (
+        format_cls.bytes
+        == '<div class="foo">\n<h1>XXXXXXXXX paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(ENCODING)
+    )
 
 
 def test_replacing_with_shorter_text(format_cls):
     format_cls.add_alter(0, 6, "XXX")
     format_cls.apply_alters()
     assert format_cls.text == "XXX paragraph 1. Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1>XXX paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+    assert format_cls.bytes == '<div class="foo">\n<h1>XXX paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(
+        ENCODING
+    )
 
 
 def test_removing_text(format_cls):
     format_cls.add_alter(0, 7, "")
     format_cls.apply_alters()
     assert format_cls.text == "paragraph 1. Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1>paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+    assert format_cls.bytes == '<div class="foo">\n<h1>paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(
+        ENCODING
+    )
 
 
 def test_removing_entire_content_of_element(format_cls):
     format_cls.add_alter(0, 16, "")
     format_cls.apply_alters()
     assert format_cls.text == " 1. Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1></h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+    assert format_cls.bytes == '<div class="foo">\n<h1></h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'.encode(ENCODING)
 
 
 def test_removing_over_element_borders(format_cls):
     format_cls.add_alter(0, 20, "")
     format_cls.apply_alters()
     assert format_cls.text == "Glücklich macht mich …"
-    assert format_cls.raw == '<div class="foo">\n<h1></h1>\n<p>Glücklich macht mich …\n</p>\n</div>'
+    assert format_cls.bytes == '<div class="foo">\n<h1></h1>\n<p>Glücklich macht mich …\n</p>\n</div>'.encode(ENCODING)
 
 
 def test_replacing_over_element_borders(format_cls):
@@ -78,8 +95,8 @@ def test_replacing_over_element_borders(format_cls):
     format_cls.apply_alters()
     assert format_cls.text == "All content goes in the first element.Glücklich macht mich …"
     assert (
-        format_cls.raw
-        == '<div class="foo">\n<h1>All content goes in the first element.</h1>\n<p>Glücklich macht mich …\n</p>\n</div>'
+        format_cls.bytes == '<div class="foo">\n<h1>All content goes in the first element.</h1>\n<p>Glücklich macht mich '
+        "…\n</p>\n</div>".encode(ENCODING)
     )
 
 
@@ -88,7 +105,8 @@ def test_escaping_html_characters(format_cls):
     format_cls.apply_alters()
     assert format_cls.text == "<Language> paragraph 1. Glücklich macht mich …"
     assert (
-        format_cls.raw == '<div class="foo">\n<h1>&lt;Language&gt; paragraph</h1>\n<p>1. Glücklich macht mich …\n</p>\n</div>'
+        format_cls.bytes == '<div class="foo">\n<h1>&lt;Language&gt; paragraph</h1>\n<p>1. Glücklich macht mich '
+        "…\n</p>\n</div>".encode(ENCODING)
     )
 
 
@@ -97,7 +115,8 @@ def test_umlauts(format_cls):
     format_cls.apply_alters()
     assert format_cls.text == "German paragraph 1. Glücklich macht mich ein Äffchen"
     assert (
-        format_cls.raw == '<div class="foo">\n<h1>German paragraph</h1>\n<p>1. Glücklich macht mich ein Äffchen\n</p>\n</div>'
+        format_cls.bytes == '<div class="foo">\n<h1>German paragraph</h1>\n<p>1. Glücklich macht mich ein '
+        "Äffchen\n</p>\n</div>".encode(ENCODING)
     )
 
 
@@ -108,4 +127,7 @@ def test_chained_alterations(format_cls):
     format_cls.add_alter(41, 42, "Essen")
     format_cls.apply_alters()
     assert format_cls.text == "Deutscher Paragraph: Glücklich bin ich mit Essen"
-    assert format_cls.raw == '<div class="foo">\n<h1>Deutscher Paragraph:</h1>\n<p> Glücklich bin ich mit Essen\n</p>\n</div>'
+    assert (
+        format_cls.bytes == '<div class="foo">\n<h1>Deutscher Paragraph:</h1>\n<p> Glücklich bin ich mit '
+        "Essen\n</p>\n</div>".encode(ENCODING)
+    )

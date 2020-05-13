@@ -1,4 +1,3 @@
-import locale
 import os
 
 from expose_text.formats import registry
@@ -7,16 +6,37 @@ from expose_text.formats._base import Format
 registry.register_formats()
 
 
-class BinaryWrapper:  # TODO add tests
-    """TODO"""
+class BinaryWrapper:
+    """A wrapper for files in various formats given as binary data to exposes their text content for modification.
+
+    >>> from pathlib import Path
+    >>> root = Path(__file__).parent.parent
+    >>> f = open(root / 'tests/files/doctest.txt', 'rb')
+    >>> _bytes = f.read()
+
+    Open binary data and inspect the text content.
+
+    >>> bw = BinaryWrapper(_bytes, '.txt')
+    >>> bw.text
+    'This is the content as string.'
+
+    This string provides the indices for the modification of the file. Queue new alterations and when you are done
+    apply them to change the file.
+
+    >>> bw.add_alter(0, 4, 'That')
+    >>> bw.apply_alters()
+    >>> bw.text
+    'That is the content as string.'
+
+    Return the content in binary format.
+    >>> bw.bytes
+    b'That is the content as string.'
+    """
 
     def __init__(self, _bytes, _format):
         format_cls = registry.find_format(_format)
         self.file = format_cls()  # type: Format
-        if self.file.is_binary():
-            self.file.load(_bytes)
-        else:
-            self.file.load(_bytes.decode(locale.getpreferredencoding()))
+        self.file.load(_bytes)
 
     @property
     def text(self):
@@ -26,10 +46,7 @@ class BinaryWrapper:  # TODO add tests
     @property
     def bytes(self):
         """TODO"""
-        if type(self.file.raw) is not bytes:
-            return self.file.raw.encode(locale.getpreferredencoding())
-        else:
-            return self.file.raw
+        return self.file.bytes
 
     def add_alter(self, start, end, text):
         """Queue a new change up for alteration.
@@ -78,9 +95,5 @@ class FileWrapper(BinaryWrapper):
 
     def save(self, file_path):
         """Save the file to disk."""
-        mode = "w"
-        if self.file.is_binary():
-            mode += "b"
-
-        with open(file_path, mode) as f:
-            f.write(self.file.raw)
+        with open(file_path, "wb") as f:
+            f.write(self.file.bytes)

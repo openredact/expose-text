@@ -7,14 +7,9 @@ class Format(ABC):
     def __init__(self):
         self._buffer = AlterationsBuffer()
 
-    @staticmethod
-    def is_binary():
-        """Whether the file is read in written in binary format or as string."""
-        return False
-
     @abstractmethod
-    def load(self, raw):
-        """Load the raw file content into the internal representation."""
+    def load(self, _bytes):
+        """Load the file in binary format into the internal representation."""
         pass
 
     @property
@@ -25,13 +20,13 @@ class Format(ABC):
 
     @property
     @abstractmethod
-    def raw(self):
-        """Get the current raw file content."""
+    def bytes(self):
+        """Get the current file content as binary data."""
 
     def add_alter(self, start, end, new_text):
         """Queue an alteration of the text.
 
-        The `start` and `end` indices are based on the current `text` content. The `text` and `raw` content are not
+        The `start` and `end` indices are based on the current `text` content. The `text` and `bytes` content are not
         changed by calling this method. To apply the changes call `apply_alters()`.
         """
         self._buffer += (start, end, new_text)
@@ -40,6 +35,6 @@ class Format(ABC):
     def apply_alters(self):
         """Apply all queued alterations.
 
-        After calling this method, `text` and `raw` will be updated.
+        After calling this method, `text` and `bytes` will be updated.
         """
         pass
