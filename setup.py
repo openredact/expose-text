@@ -1,9 +1,12 @@
 from distutils.core import setup
 
+from setuptools import find_packages
+
+
 setup(
     name="expose-text",
     version="0.1.0a",
-    packages=["expose_text"],
+    packages=find_packages(exclude=["tests"]),
     license="MIT",
     description="A Python module that exposes text for modification in multiple file types.",
     long_description=open("README.md").read(),
