@@ -53,6 +53,7 @@ class HtmlMapper(Mapper):
     def simultaneous_text_extraction_and_mapping(self):
         # remove tags
         self._remove_pattern(r"<br.*>", replace_with=" ")  # html linebreaks
+        self._remove_pattern(r"<script[^>]*>.*?<\/script>", flags=re.DOTALL)  # remove scripts
         self._remove_pattern(r"<[^>]+>")  # html tags
 
         # remove newlines and whitespace
