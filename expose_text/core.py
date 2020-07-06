@@ -7,7 +7,7 @@ registry.register_formats()
 
 
 class BinaryWrapper:
-    """A wrapper for files in various formats given as binary data to exposes their text content for modification.
+    """A wrapper for binary files in various formats that exposes their text content for modification.
 
     >>> from pathlib import Path
     >>> root = Path(__file__).parent.parent
@@ -40,12 +40,12 @@ class BinaryWrapper:
 
     @property
     def text(self):
-        """Returns the text content of the file."""
+        """The text content of the file."""
         return self.file.text
 
     @property
     def bytes(self):
-        """TODO"""
+        """The binary content of the file."""
         return self.file.bytes
 
     def add_alter(self, start, end, text):
