@@ -2,8 +2,8 @@ import html
 import re
 
 from expose_text.formats._base import Format
-from expose_text.formats._markup_utils import MarkupModifier, Mapper
 from expose_text.formats._utils import apply_buffer_to_text
+from expose_text.formats.markup.utils import MarkupModifier, Mapper
 
 ENCODING = "UTF-8"
 
@@ -17,7 +17,7 @@ class HtmlFormat(Format):
         self._html = unescape_html(_bytes.decode(ENCODING))
 
         mapper = HtmlMapper(self._html)
-        self._text, mapping = mapper.distill_text_and_mapping()
+        self._text, mapping = mapper.simultaneous_text_extraction_and_mapping()
 
         self._html_wrapper = MarkupModifier(self._html, mapping)
 
@@ -50,7 +50,7 @@ def unescape_html(_html):
 
 
 class HtmlMapper(Mapper):
-    def distill_text_and_mapping(self):
+    def simultaneous_text_extraction_and_mapping(self):
         # remove tags
         self._remove_pattern(r"<br.*>", replace_with=" ")  # html linebreaks
         self._remove_pattern(r"<[^>]+>")  # html tags

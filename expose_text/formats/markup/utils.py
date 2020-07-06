@@ -53,7 +53,7 @@ class Mapper(ABC):
         self._text_to_markup_idx = list(range(len(markup)))
 
     @abstractmethod
-    def distill_text_and_mapping(self):
+    def simultaneous_text_extraction_and_mapping(self):
         """Extract the text and create an index mapping by one or more calls to `remove_patterns`."""
         return self._text, self._text_to_markup_idx
 
