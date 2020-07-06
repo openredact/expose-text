@@ -37,7 +37,7 @@ class HtmlFormat(Format):
 
 def unescape_html(_html):
     unescaped_html = ""
-    pattern = re.compile(r"&\d{1,4};|&\w{1,6};")
+    pattern = re.compile(r"&#\d{1,4};|&\w{1,6};")
     cur = 0
     for m in pattern.finditer(_html):
         if m.group(0) in ["&lt;", "&gt;", "&amp;"]:
