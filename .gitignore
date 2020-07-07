@@ -1,3 +1,16 @@
+# PyCharm
 .idea/
+
+# Mac
+.DS_Store
+
+# Virtualenv
 venv/
+
+# Python
 expose_text.egg-info/
+
+# Tests
+.coverage
+__pycache__
+tests/files/tmp/*
