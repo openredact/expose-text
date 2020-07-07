@@ -14,7 +14,9 @@ A Python module that exposes text for modification in multiple file types.
 
 ### .html
 
-Note: Only HTML in UTF-8 encoding is supported. HTML special entities will be replaced with their UTF-8 equivalent.
+- You can either pass an HTML snippet, body or a complete HTML document. If you pass a complete HTML document, only the body is considered.
+- The encoding of the input document will be automatically detected using [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#encodings). The output document will always be encoded in UTF-8.
+- BeautifulSoup may rearrange the order of tag attributes.
 
 ## Development
 

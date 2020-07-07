@@ -1,6 +1,7 @@
 # Dependencies
 pdfrw==0.4
 defusedxml==0.6.0
+beautifulsoup4==4.9.1
 
 # Development dependencies
 pre-commit==2.2.0

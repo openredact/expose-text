@@ -1,14 +1,8 @@
 import filecmp
-from pathlib import Path
 
 import pytest
 
 from expose_text import FileWrapper, UnsupportedFormat
-
-
-@pytest.fixture
-def test_files():
-    return Path(__file__).parent / "files"
 
 
 def test_unsupported_format(test_files):
@@ -39,11 +33,11 @@ def test_load_and_save_for_string(test_files, tmp_path):
 def test_alter_file(test_files, tmp_path):
     file_path = test_files / "test.txt"
     altered_file_path = test_files / "test_altered.txt"
-    result_path = tmp_path / "test_out.txt"
+    tmp_out_path = tmp_path / "test_out.txt"
 
     file_wrapper = FileWrapper(file_path)
     file_wrapper.add_alter(20, 44, " With a single line. ")
     file_wrapper.apply_alters()
-    file_wrapper.save(result_path)
+    file_wrapper.save(tmp_out_path)
 
-    assert filecmp.cmp(altered_file_path, result_path, shallow=False)
+    assert filecmp.cmp(altered_file_path, tmp_out_path, shallow=False)
