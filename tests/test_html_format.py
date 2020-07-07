@@ -6,7 +6,7 @@ ENCODING = "UTF-8"
 
 
 @pytest.fixture
-def html_bytes():
+def html_snippet():
     return """<div class="foo">
                  <h1>German paragraph</h1>
                  <p>1. Glücklich macht mich …</p>
@@ -16,13 +16,13 @@ def html_bytes():
 
 
 @pytest.fixture()
-def format_cls(html_bytes):
+def format_cls(html_snippet):
     format_cls = HtmlFormat()
-    format_cls.load(html_bytes)
+    format_cls.load(html_snippet)
     return format_cls
 
 
-def test_text_property(format_cls, html_bytes):
+def test_text_property(format_cls):
     assert format_cls.text == "German paragraph\n1. Glücklich macht mich …\n"
 
 
@@ -135,4 +135,78 @@ def test_chained_alterations(format_cls):
     assert (
         format_cls.bytes == '<div class="foo">\n<h1>Deutscher Paragraph:</h1>\n<p> Glücklich bin ich mit '
         "Essen</p>\n</div>".encode(ENCODING)
+    )
+
+
+def test_altering_html_body():
+    html_bytes = """
+<body class="bar"><div class="foo">
+<h1>German paragraph</h1>
+<p>1. Glücklich macht mich …</p>
+</div></body>""".encode(
+        ENCODING
+    )
+    format_cls = HtmlFormat()
+    format_cls.load(html_bytes)
+    format_cls.add_alter(0, 6, "Deutscher")
+    format_cls.add_alter(41, 42, "Essen")
+    format_cls.apply_alters()
+    assert format_cls.text == "Deutscher paragraph\n1. Glücklich macht mich Essen\n"
+    assert (
+        format_cls.bytes
+        == """
+<body class="bar"><div class="foo">
+<h1>Deutscher paragraph</h1>
+<p>1. Glücklich macht mich Essen</p>
+</div></body>""".encode(
+            ENCODING
+        )
+    )
+
+
+def test_altering_html_document():
+    html_bytes = """
+<!DOCTYPE html>
+
+<html class="client-nojs" dir="ltr" lang="de">
+<head>
+<meta charset="utf-8"/>
+<title>The title is not considered.</title>
+<script>document.documentElement.className="client-js";</script>
+<link href="//github.com" rel="dns-prefetch"/>
+<!--[if lt IE 9]><script src="/w/lnjnsef4/3nklnfasldcnal.js"></script><![endif]-->
+</head>
+<body class="bar"><div class="foo">
+<h1>German paragraph</h1>
+<p>1. Glücklich macht mich …</p>
+</div></body>
+</html>""".encode(
+        ENCODING
+    )
+    format_cls = HtmlFormat()
+    format_cls.load(html_bytes)
+    format_cls.add_alter(0, 6, "Deutscher")
+    format_cls.add_alter(41, 42, "Essen")
+    format_cls.apply_alters()
+    assert format_cls.text == "Deutscher paragraph\n1. Glücklich macht mich Essen\n"
+    assert (
+        format_cls.bytes
+        == """
+<!DOCTYPE html>
+
+<html class="client-nojs" dir="ltr" lang="de">
+<head>
+<meta charset="utf-8"/>
+<title>The title is not considered.</title>
+<script>document.documentElement.className="client-js";</script>
+<link href="//github.com" rel="dns-prefetch"/>
+<!--[if lt IE 9]><script src="/w/lnjnsef4/3nklnfasldcnal.js"></script><![endif]-->
+</head>
+<body class="bar"><div class="foo">
+<h1>Deutscher paragraph</h1>
+<p>1. Glücklich macht mich Essen</p>
+</div></body>
+</html>""".encode(
+            ENCODING
+        )
     )

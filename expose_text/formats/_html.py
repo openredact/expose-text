@@ -18,7 +18,7 @@ class HtmlFormat(Format):
         self._soup = BeautifulSoup(_bytes, "html.parser")
 
         if self._soup.body:
-            content = "".join([str(content) for content in self._soup.body.contents])
+            content = "".join([str(content) if content != "\n" else "" for content in self._soup.body.contents])
             self._expose_body_only = True
         else:
             content = str(self._soup)
