@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="32x32" href="foo.bar">
+    <title>This is a test - The title is not considered by expose-text</title>
+    <meta property="foo:title" content="Test"/>
+</head>
+<body class="no-js foo">
+<header class="bar">This is some kind of header</header>
+<div>
+    <p>And now some content…<br/>well not very much.</p>
+    <p>This sentence will be replaced.</p>
+</div>
+<script type="text/javascript">
+  var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0]
+</script>
+<div>One more line with an ümlaut.</div>
+</body>
+</html>

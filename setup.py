@@ -10,5 +10,5 @@ setup(
     license="MIT",
     description="A Python module that exposes text for modification in multiple file types.",
     long_description=open("README.md").read(),
-    install_requires=["pdfrw==0.4", "defusedxml==0.6.0", "beautifulsoup4==4.9.1"],
+    install_requires=["pdfrw==0.4", "defusedxml==0.6.0", "beautifulsoup4==4.9.1", "lxml==4.5.1"],
 )
