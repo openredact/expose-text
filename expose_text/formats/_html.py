@@ -10,17 +10,17 @@ from expose_text.formats.markup.utils import MarkupModifier, Mapper
 class HtmlFormat(Format):
     _html = ""
     _text = ""
-    _html_wrapper = None
-    _soup = None
+    _html_modifier = None
+    _html_container = None
 
-    def load(self, _bytes):
-        self._soup = BeautifulSoup(_bytes, "lxml")
-        self._html = "".join([str(content) if content != "\n" else "" for content in self._soup.body.contents])
+    def load(self, bytes_):
+        self._html_container = HtmlContainer(bytes_)
+        self._html = self._html_container.get_body()
 
         mapper = HtmlMapper(self._html)
         self._text, mapping = mapper.simultaneous_text_extraction_and_mapping()
 
-        self._html_wrapper = MarkupModifier(self._html, mapping)
+        self._html_modifier = MarkupModifier(self._html, mapping)
 
     @property
     def text(self):
@@ -28,16 +28,34 @@ class HtmlFormat(Format):
 
     @property
     def bytes(self):
-        new_content = BeautifulSoup(self._html, "lxml")
-        body_attributes = self._soup.body.attrs
-        self._soup.body.replace_with(new_content.body)
-        self._soup.body.attrs = body_attributes
-        return self._soup.encode("UTF-8")
+        self._html_container.replace_body(self._html)
+        return self._html_container.get_bytes()
 
     def apply_alters(self):
         self._text = apply_buffer_to_text(self._buffer, self._text)
-        self._html = self._html_wrapper.apply_buffer(self._buffer)
+        self._html = self._html_modifier.apply_buffer(self._buffer)
         self._buffer.clear()
+
+
+class HtmlContainer:
+    """The Html container holds the original file, makes body accessible, and handles the conversion to unicode."""
+
+    _soup = None
+
+    def __init__(self, bytes_):
+        self._soup = BeautifulSoup(bytes_, "lxml")
+
+    def get_body(self):
+        return "".join([str(content) if content != "\n" else "" for content in self._soup.body.contents])
+
+    def replace_body(self, new_body):
+        new_content = BeautifulSoup(new_body, "lxml")
+        body_attributes = self._soup.body.attrs
+        self._soup.body.replace_with(new_content.body)
+        self._soup.body.attrs = body_attributes
+
+    def get_bytes(self):
+        return self._soup.encode("UTF-8")
 
 
 class HtmlMapper(Mapper):
