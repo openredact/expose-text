@@ -19,11 +19,11 @@ class PdfFormat(Format):
     text_tokens = None
     page_tokens = None
 
-    def load(self, _bytes):
+    def load(self, bytes_):
         self.options = pdf_redactor.RedactorOptions()
-        self.options.input_stream = _bytes
+        self.options.input_stream = bytes_
 
-        self.document = PdfReader(fdata=_bytes)
+        self.document = PdfReader(fdata=bytes_)
         self.text_tokens, self.page_tokens = pdf_redactor.build_text_layer(self.document, self.options)
 
     @property

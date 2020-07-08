@@ -8,7 +8,7 @@ class Format(ABC):
         self._buffer = AlterationsBuffer()
 
     @abstractmethod
-    def load(self, _bytes):
+    def load(self, bytes_):
         """Load the file in binary format into the internal representation."""
         pass
 

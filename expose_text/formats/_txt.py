@@ -8,9 +8,9 @@ class TxtFormat(Format):
     _encoding = None
     _content = ""
 
-    def load(self, _bytes):
-        self._encoding = chardet.detect(_bytes)["encoding"]
-        self._content = _bytes.decode(self._encoding)
+    def load(self, bytes_):
+        self._encoding = chardet.detect(bytes_)["encoding"]
+        self._content = bytes_.decode(self._encoding)
 
     @property
     def text(self):
