@@ -1,6 +1,8 @@
 import pytest
 
-from expose_text.formats._txt import TxtFormat, ENCODING
+from expose_text.formats._txt import TxtFormat
+
+ENCODING = "UTF-8"
 
 
 @pytest.fixture

@@ -3,6 +3,7 @@ pdfrw==0.4
 defusedxml==0.6.0
 beautifulsoup4==4.9.1
 lxml==4.5.1
+chardet==3.0.4
 
 # Development dependencies
 pre-commit==2.2.0
