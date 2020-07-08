@@ -33,3 +33,12 @@ def test_alterations(format_cls):
     format_cls.apply_alters()
     assert format_cls.text == "That is the content of a text file. Try change me."
     assert format_cls.bytes == b"That is the content of a text file. Try change me."
+
+
+@pytest.mark.parametrize("encoding", ["utf-8", "utf-16", "latin-1", "windows-1252"])
+def test_encodings(encoding):
+    encoded_string = "¾ der Mäuse sind weiß. The bread costs 7$.".encode(encoding)
+    format_cls = TxtFormat()
+    format_cls.load(encoded_string)
+    assert format_cls.bytes == encoded_string
+    assert format_cls.text == encoded_string.decode(encoding)
