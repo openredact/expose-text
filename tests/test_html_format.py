@@ -13,7 +13,7 @@ def html_snippet():
     return """<div class="foo"><h1>German paragraph</h1>\n<p>1. Glücklich macht mich …</p></div>""".encode(ENCODING)
 
 
-@pytest.fixture()
+@pytest.fixture
 def format_cls(html_snippet):
     format_cls = HtmlFormat()
     format_cls.load(html_snippet)

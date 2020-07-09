@@ -83,4 +83,7 @@ class DocxMapper(Mapper):
         self._remove_pattern(r"&quot;", replace_with='"')
         self._remove_pattern(r"&apos;", replace_with="'")
 
+        # remove trailing newlines
+        self._remove_pattern(r"\n+$")
+
         return self._text, self._text_to_markup_idx
