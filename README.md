@@ -12,6 +12,8 @@ A Python module that exposes text for modification in multiple file types.
 
 ### .txt
 
+- The encoding is automatically detected using [chardet](https://github.com/chardet/chardet) which should work fine in most cases.
+
 ### .html
 
 - You can either pass an HTML snippet, body or a complete HTML document. If you pass a complete HTML document, only the body is considered. If you pass a snippet, it will be turned into a full HTML document by adding `html` and `body` tags.
