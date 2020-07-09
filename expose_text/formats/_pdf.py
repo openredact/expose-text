@@ -2,7 +2,7 @@ import io
 
 from pdfrw import PdfReader, PdfDict, PdfWriter
 
-from expose_text.formats._base import Format
+from expose_text.formats.base import Format
 from expose_text.formats.pdf import pdf_redactor
 from expose_text.formats.pdf.pdf_redactor import InlineImage, RedactorOptions
 

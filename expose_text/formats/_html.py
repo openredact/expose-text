@@ -2,8 +2,8 @@ import re
 
 from bs4 import BeautifulSoup
 
-from expose_text.formats._base import Format
 from expose_text.formats._utils import apply_buffer_to_text
+from expose_text.formats.base import Format
 from expose_text.formats.markup.utils import MarkupModifier, Mapper
 
 

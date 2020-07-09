@@ -1,7 +1,7 @@
 import chardet
 
-from expose_text.formats._base import Format
 from expose_text.formats._utils import apply_buffer_to_text
+from expose_text.formats.base import Format
 
 
 class TxtFormat(Format):

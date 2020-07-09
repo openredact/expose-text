@@ -1,7 +1,7 @@
 import os
 
 from expose_text.formats import registry
-from expose_text.formats._base import Format
+from expose_text.formats.base import Format
 
 registry.register_formats()
 
