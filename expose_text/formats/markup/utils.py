@@ -74,6 +74,6 @@ class Mapper(ABC):
 
     def _replace_content_in_markup(self, start, end, new_text):
         if len(new_text) > end - start:
-            raise NotImplementedError()
+            raise ValueError()
         self._text = self._text[:start] + new_text + self._text[end:]
         del self._text_to_markup_idx[start + len(new_text) : end]
