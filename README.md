@@ -18,6 +18,9 @@ A Python module that exposes text for modification in multiple file types.
 - The encoding of the input document is automatically detected using [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#encodings). The output file will always be encoded in UTF-8.
 - The order of tag attributes might be rearranged and the formatting changed.
 
+### .docx
+
+
 ## Development
 
 ### Install requirements
