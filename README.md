@@ -1,26 +1,61 @@
 # ExposeText
 
-_**:warning: Disclaimer :warning::**_ This is a prototype. Do not use for anything critical.
+**Expose the text in a document for modification.**
 
-A Python module that exposes text for modification in multiple file types.
+---
 
 ![Tests](https://github.com/openredact/expose-text/workflows/Tests/badge.svg?branch=master)
 ![Black & Flake8](https://github.com/openredact/expose-text/workflows/Black%20&%20Flake8/badge.svg?branch=master)
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 
+_**:warning: Disclaimer :warning::**_ This is a prototype. Do not use for anything critical.
+
+## What is ExposeText
+
+ExposeText extracts the plain text in a document and gives you an API to modify it.
+This enables you to modify various file formats as easily as strings while keeping the original formatting.
+
 ## Supported Formats
 
-### .txt
+- .txt
+  - The encoding is automatically detected using [chardet](https://github.com/chardet/chardet) which should work fine in most cases.
+- .html
+  - You can either pass an HTML snippet, a body or a complete HTML document. If you pass a complete HTML document, everything but the body is ignored.
+  - The output file will always be encoded in UTF-8.
+- .docx
 
-- The encoding is automatically detected using [chardet](https://github.com/chardet/chardet) which should work fine in most cases.
 
-### .html
+## Usage
 
-- You can either pass an HTML snippet, a body or a complete HTML document. If you pass a complete HTML document, everything but the body is ignored.
-- The output file will always be encoded in UTF-8.
+You can use ExposeText on files and binary data objects.
 
-### .docx
+This is how you can expose the text inside a file:
+```python
+>>> from expose_text import FileWrapper
+>>> fw = FileWrapper('myfile.docx')
+>>> fw.text
+'This is the content as string.'
+>>> fw.add_alter(12, 19, 'new content')
+>>> fw.apply_alters()
+>>> fw.text
+'This is the new content as string.'
+>>> fw.save('newfile.docx')
+```
 
+If you want to work directly with binary data you have to provide the file format:
+```python
+>>> from expose_text import BinaryWrapper
+>>> my_bytes = await my_file.read()  # get your bytes object from e.g. IO
+>>> bw = BinaryWrapper(my_bytes, '.docx')
+>>> bw.text
+'This is the content as string.'
+>>> bw.add_alter(12, 19, 'new content')
+>>> bw.apply_alters()
+>>> bw.text
+'This is the new content as string.'
+>>> bw.bytes  # get the modified file as bytes
+b'...'
+```
 
 ## Development
 
@@ -59,6 +94,11 @@ The tests can be executed with:
 pytest --doctest-modules --cov-report term --cov=expose_text
 ```
 
+## How to contact us
+
+If you have a usage question, found a bug or have a suggestion for improvement, please file a Github issue.
+For other matters, please email hello@openredact.org
+
 ## License
 
-MIT
+[MIT License](https://github.com/openredact/expose-text/blob/master/LICENSE)
