@@ -71,7 +71,7 @@ class DocxMapper(Mapper):
         # get plain text from word/document.xml (everything between <w:t ...> and </w:t>)
         self._remove_pattern(r"\n")  # get rid of all newlines from the xml formatting
         self._remove_pattern(r"<\/w:p>|<w:br[^>]*>", replace_with="\n")  # add newlines from paragraph ends and linebreaks
-        self._remove_pattern(r"(<\/w:t>.*?<w:t[^>]*>)", flags=re.MULTILINE)  # delete content from text close to open tags
+        self._remove_pattern(r"<\/w:t>.*?<w:t[^>]*>", flags=re.MULTILINE)  # delete content from text close to open tags
         self._remove_pattern(r"^.*<w:t[^>]*>", flags=re.MULTILINE)  # delete to remaining open tags
         self._remove_pattern(r"<\/w:t>.*$", flags=re.MULTILINE)  # delete from remaining close tags
         self._remove_pattern(r"^.*<.*$", flags=re.MULTILINE)  # delete leftover lines with xml content
