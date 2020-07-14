@@ -131,8 +131,8 @@ pytest --doctest-modules --cov-report term --cov=expose_text
 
 ## How to contact us
 
-If you have a usage question, found a bug or have a suggestion for improvement, please file a Github issue.
-For other matters, please email hello@openredact.org
+For usage questions, bugs, or suggestions please file a Github issue.
+If you would like to contribute or have other questions please email hello@openredact.org
 
 ## License
 
