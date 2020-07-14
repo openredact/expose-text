@@ -1,6 +1,7 @@
 import io
 
 from pdfrw import PdfReader, PdfDict, PdfWriter
+from pdfrw import PdfArray
 
 from expose_text.formats.base import Format
 from expose_text.formats.pdf import pdf_redactor
@@ -11,6 +12,10 @@ class PdfFormat(Format):
     """
 
     Mostly based on https://github.com/JoshData/pdf-redactor
+
+    # A general-purpose PDF text-layer redaction tool.
+    # License: CC0 1.0 Universal
+    # Source: https://github.com/JoshData/pdf-redactor
 
     """
 
@@ -104,33 +109,39 @@ class PdfFormat(Format):
                 start_idx += mlen
 
         # Replace page content streams with updated tokens.
-        # apply_updated_text
+        self.apply_updated_text()
 
+    def tok_str(self, tok):
+        # Replace the page's content stream with our updated tokens.
+        # The content stream may have been an array of streams before,
+        # so replace the whole thing with a single new stream. Unfortunately
+        # the str on PdfArray and PdfDict doesn't work right.
+        if isinstance(tok, PdfArray):
+            return "[ " + " ".join(self.tok_str(x) for x in tok) + "] "
+        if isinstance(tok, InlineImage):
+            return (
+                "BI "
+                + " ".join(self.tok_str(x) + " " + self.tok_str(y) for x, y in tok.items())
+                + " ID "
+                + tok.stream
+                + " EI "
+            )
+        if isinstance(tok, PdfDict):
+            return "<< " + " ".join(self.tok_str(x) + " " + self.tok_str(y) for x, y in tok.items()) + ">> "
+
+        return str(tok)
+
+    def apply_updated_text(self):
         # Create a new content stream for each page by concatenating the
         # tokens in the page_tokens lists.
-        from pdfrw import PdfArray
 
         for i, page in enumerate(self.document.pages):
             if page.Contents is None:
                 continue  # nothing was here
 
-            # Replace the page's content stream with our updated tokens.
-            # The content stream may have been an array of streams before,
-            # so replace the whole thing with a single new stream. Unfortunately
-            # the str on PdfArray and PdfDict doesn't work right.
-            def tok_str(tok):
-                if isinstance(tok, PdfArray):
-                    return "[ " + " ".join(tok_str(x) for x in tok) + "] "
-                if isinstance(tok, InlineImage):
-                    return (
-                        "BI " + " ".join(tok_str(x) + " " + tok_str(y) for x, y in tok.items()) + " ID " + tok.stream + " EI "
-                    )
-                if isinstance(tok, PdfDict):
-                    return "<< " + " ".join(tok_str(x) + " " + tok_str(y) for x, y in tok.items()) + ">> "
-                return str(tok)
-
             page.Contents = PdfDict()
-            page.Contents.stream = "\n".join(tok_str(tok) for tok in self.page_tokens[i])
+            page.Contents.stream = "\n".join(self.tok_str(tok) for tok in self.page_tokens[i])
+
             page.Contents.Length = len(page.Contents.stream)  # reset
 
         self._buffer.clear()

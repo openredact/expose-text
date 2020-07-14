@@ -23,6 +23,8 @@ This enables you to modify various file formats as easily as strings while keepi
   - You can either pass an HTML snippet, a body or a complete HTML document. If you pass a complete HTML document, everything but the body is ignored.
   - The output file will always be encoded in UTF-8.
 - .docx
+- .pdf 
+  - PDF processing requires additional dependencies: [Poppler (pdftohtml)](https://poppler.freedesktop.org/) and [wkhtmltopdf](https://wkhtmltopdf.org/)
 
 
 ## Usage

@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Union
 
 from expose_text.formats import registry
-from expose_text.formats.base import Format
 
 registry.register_formats()
 
@@ -49,9 +48,19 @@ class BinaryWrapper:
     b'That is the new content as string!'
     """
 
-    def __init__(self, bytes_: bytes, _format: str):
-        format_cls = registry.find_format(_format)
-        self.file = format_cls()  # type: Format
+    def __init__(self, bytes_: bytes, format_cls_or_str: Union[type, str]):
+        """
+        Constructor
+
+        :param bytes_: Input bytes
+        :param format_cls_or_str: Explicit Format class or file extension string (Format class will be auto-determined)
+        """
+        if isinstance(format_cls_or_str, str):
+            format_cls_or_str = registry.find_format(format_cls_or_str)
+        elif not isinstance(format_cls_or_str, type):
+            raise ValueError("`format_cls_or_str` must be provided as either Format class or file extension string")
+
+        self.file = format_cls_or_str()
         self.file.load(bytes_)
 
     @property
@@ -127,13 +136,19 @@ class FileWrapper(BinaryWrapper):
     >>> fw.save(root / 'tests/files/doctest_altered.txt')
     """
 
-    def __init__(self, file_path: Union[Path, str]):
+    def __init__(self, file_path: Union[Path, str], format_cls: type = None):
+        """
+        Constructor
+
+        :param file_path: Path to input file
+        :param format_cls: Specific Format class (if not set, class is determined based on file extension)
+        """
         _, extension = os.path.splitext(file_path)
 
         with open(file_path, "rb") as f:
             bytes_ = f.read()
 
-        super().__init__(bytes_, extension)
+        super().__init__(bytes_, format_cls if format_cls else extension)
 
     def save(self, file_path: Union[Path, str]):
         """Save the file to disk."""
