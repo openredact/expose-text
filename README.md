@@ -32,29 +32,57 @@ You can use ExposeText on files and binary data objects.
 This is how you can expose the text inside a file:
 ```python
 >>> from expose_text import FileWrapper
->>> fw = FileWrapper('myfile.docx')
->>> fw.text
+>>>
+>>> wrapper = FileWrapper('myfile.docx')
+>>> wrapper.text
 'This is the content as string.'
->>> fw.add_alter(12, 19, 'new content')
->>> fw.apply_alters()
->>> fw.text
+
+>>> wrapper[12:19] = 'new content'
+>>> wrapper.text
 'This is the new content as string.'
+
 >>> fw.save('newfile.docx')
 ```
 
 If you want to work directly with binary data you have to provide the file format:
 ```python
 >>> from expose_text import BinaryWrapper
->>> my_bytes = await my_file.read()  # get your bytes object from e.g. IO
->>> bw = BinaryWrapper(my_bytes, '.docx')
->>> bw.text
+>>>
+>>> wrapper = BinaryWrapper(my_bytes, '.docx')
+>>> wrapper.text
 'This is the content as string.'
->>> bw.add_alter(12, 19, 'new content')
->>> bw.apply_alters()
->>> bw.text
+
+>>> wrapper[12:19] = 'new content'
+>>> wrapper.text
 'This is the new content as string.'
+
 >>> bw.bytes  # get the modified file as bytes
 b'...'
+```
+
+Depending on your usecase use one of the following interfaces for making modifications:
+```python
+# Functional API: Queue several alterations based on the initial indices and then apply them
+>>> wrapper.text
+'This is the content as string.'
+
+>>> wrapper.add_alter(12, 19, 'new content')
+>>> wrapper.add_alter(29, 30, '!')
+>>> wrapper.apply_alters()
+>>> wrapper.text
+'This is the new content as string!'
+
+# Slicing API: Make and immediately apply a single alteration
+>>> wrapper.text
+'This is the content as string.'
+
+>>> wrapper[12:19] = 'new content'
+>>> wrapper.text
+'This is the new content as string.'
+
+>>> wrapper[33] = '!'  # note that you have to use the updated index here
+>>> wrapper.text
+'This is the new content as string!'
 ```
 
 ## Development

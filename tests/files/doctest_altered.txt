@@ -1,1 +1,1 @@
-That is the content as string.
+That is the new content as string!

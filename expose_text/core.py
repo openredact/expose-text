@@ -20,6 +20,13 @@ class BinaryWrapper:
     >>> bw.text
     'This is the content as string.'
 
+    Or access the content using slicing.
+
+    >>> bw[12:19]
+    'content'
+    >>> bw[29]
+    '.'
+
     This string provides the indices for the modification of the file. Queue new alterations and when you are done
     apply them to change the file.
 
@@ -28,9 +35,16 @@ class BinaryWrapper:
     >>> bw.text
     'That is the content as string.'
 
+    The slicing interface lets you make and apply an alteration in a single call.
+
+    >>> bw[12:19] = 'new content'
+    >>> bw[33] = '!'
+    >>> bw.text
+    'That is the new content as string!'
+
     Return the content in binary format.
     >>> bw.bytes
-    b'That is the content as string.'
+    b'That is the new content as string!'
     """
 
     def __init__(self, _bytes, _format):
@@ -60,6 +74,18 @@ class BinaryWrapper:
         """Apply all queued alterations."""
         self.file.apply_alters()
 
+    def __getitem__(self, key):
+        """Get a substring of the contained text using slicing or indexing."""
+        return self.file.text.__getitem__(key)
+
+    def __setitem__(self, key, value):
+        """Add and apply one alter using the slicing syntax."""
+        if isinstance(key, slice):
+            self.add_alter(key.start, key.stop, value)
+        else:
+            self.add_alter(key, key + 1, value)
+        self.apply_alters()
+
 
 class FileWrapper(BinaryWrapper):
     """A wrapper for various file formats that exposes their text content for modification.
@@ -73,6 +99,13 @@ class FileWrapper(BinaryWrapper):
     >>> fw.text
     'This is the content as string.'
 
+    Or access the content using slicing.
+
+    >>> fw[12:19]
+    'content'
+    >>> fw[29]
+    '.'
+
     This string provides the indices for the modification of the file. Queue new alterations and when you are done
     apply them to change the file.
 
@@ -80,6 +113,13 @@ class FileWrapper(BinaryWrapper):
     >>> fw.apply_alters()
     >>> fw.text
     'That is the content as string.'
+
+    The slicing interface lets you make and apply an alteration in a single call.
+
+    >>> fw[12:19] = 'new content'
+    >>> fw[33] = '!'
+    >>> fw.text
+    'That is the new content as string!'
 
     Now create a new file that looks like the original one but with the altered content.
     >>> fw.save(root / 'tests/files/doctest_altered.txt')
