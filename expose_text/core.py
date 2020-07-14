@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+from typing import Union
 
 from expose_text.formats import registry
 from expose_text.formats.base import Format
@@ -12,11 +14,11 @@ class BinaryWrapper:
     >>> from pathlib import Path
     >>> root = Path(__file__).parent.parent
     >>> f = open(root / 'tests/files/doctest.txt', 'rb')
-    >>> _bytes = f.read()
+    >>> bytes_ = f.read()
 
     Open binary data and inspect the text content.
 
-    >>> bw = BinaryWrapper(_bytes, '.txt')
+    >>> bw = BinaryWrapper(bytes_, '.txt')
     >>> bw.text
     'This is the content as string.'
 
@@ -47,22 +49,22 @@ class BinaryWrapper:
     b'That is the new content as string!'
     """
 
-    def __init__(self, _bytes, _format):
+    def __init__(self, bytes_: bytes, _format: str):
         format_cls = registry.find_format(_format)
         self.file = format_cls()  # type: Format
-        self.file.load(_bytes)
+        self.file.load(bytes_)
 
     @property
-    def text(self):
+    def text(self) -> str:
         """The text content of the file."""
         return self.file.text
 
     @property
-    def bytes(self):
+    def bytes(self) -> bytes:
         """The binary content of the file."""
         return self.file.bytes
 
-    def add_alter(self, start, end, text):
+    def add_alter(self, start: int, end: int, text: str):
         """Queue a new change up for alteration.
 
         The `start` and `end` indices refer to the current value of the `text` property. Apply the queued alterations
@@ -74,11 +76,11 @@ class BinaryWrapper:
         """Apply all queued alterations."""
         self.file.apply_alters()
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[slice, int]):
         """Get a substring of the contained text using slicing or indexing."""
         return self.file.text.__getitem__(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Union[slice, int], value: str):
         """Add and apply one alter using the slicing syntax."""
         if isinstance(key, slice):
             self.add_alter(key.start, key.stop, value)
@@ -125,15 +127,15 @@ class FileWrapper(BinaryWrapper):
     >>> fw.save(root / 'tests/files/doctest_altered.txt')
     """
 
-    def __init__(self, file_path):
+    def __init__(self, file_path: Union[Path, str]):
         _, extension = os.path.splitext(file_path)
 
         with open(file_path, "rb") as f:
-            _bytes = f.read()
+            bytes_ = f.read()
 
-        super().__init__(_bytes, extension)
+        super().__init__(bytes_, extension)
 
-    def save(self, file_path):
+    def save(self, file_path: Union[Path, str]):
         """Save the file to disk."""
         with open(file_path, "wb") as f:
             f.write(self.file.bytes)
