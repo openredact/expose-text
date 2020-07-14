@@ -60,9 +60,12 @@ If you want to work directly with binary data you have to provide the file forma
 b'...'
 ```
 
-Depending on your usecase use one of the following interfaces for making modifications:
+Depending on your usecase use one of the following interfaces for making modifications.
+
+### Functional API
+
+Queue several alterations based on the initial indices and then apply them.
 ```python
-# Functional API: Queue several alterations based on the initial indices and then apply them
 >>> wrapper.text
 'This is the content as string.'
 
@@ -71,8 +74,12 @@ Depending on your usecase use one of the following interfaces for making modific
 >>> wrapper.apply_alters()
 >>> wrapper.text
 'This is the new content as string!'
+```
 
-# Slicing API: Make and immediately apply a single alteration
+### Slicing API
+
+Make and immediately apply a single alteration.
+```python
 >>> wrapper.text
 'This is the content as string.'
 
