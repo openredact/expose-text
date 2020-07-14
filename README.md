@@ -7,6 +7,7 @@
 ![Tests](https://github.com/openredact/expose-text/workflows/Tests/badge.svg?branch=master)
 ![Black & Flake8](https://github.com/openredact/expose-text/workflows/Black%20&%20Flake8/badge.svg?branch=master)
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
+[![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
 _**:warning: Disclaimer :warning::**_ This is a prototype. Do not use for anything critical.
 
