@@ -35,7 +35,8 @@ class Pdf2Html2PdfFormat(Format):
         pdf_margin_right="0",
         pdf_margin_top="0",
         pdf_margin_bottom="0",
-        pdf_zoom="1.1",
+        pdf_output_zoom="1.6",
+        pdf_input_zoom="1.0",
     ):
         """
         For PDF settings see pdfkit (wkhtmltopdf) documentation
@@ -47,18 +48,28 @@ class Pdf2Html2PdfFormat(Format):
         self.pdf_margin_right = pdf_margin_right
         self.pdf_margin_top = pdf_margin_top
         self.pdf_margin_bottom = pdf_margin_bottom
-        self.pdf_zoom = pdf_zoom
+        self.pdf_output_zoom = pdf_output_zoom
+        self.pdf_input_zoom = pdf_input_zoom
 
     def load(self, bytes_):
         self.page2html = self.get_html_pages_from_pdf(bytes_)
 
         # send to html format wrapper
-        self.html_format.load(self.page2html[1].encode("utf-8"))
+        pages_html = [html for page, html in self.page2html.items()]
+
+        # print('Pages: %s' % [page for page, html in self.page2html.items()])
+        pages_html = self.page2html[1]
+
+        self.html_format.load(("".join(pages_html)).encode("utf-8"))
 
     @property
     def text(self):
         # html to text
         return self.html_format.text
+
+    @property
+    def html(self):
+        return self.page2html[1]
 
     @property
     def bytes(self):
@@ -75,7 +86,7 @@ class Pdf2Html2PdfFormat(Format):
                 "margin-right": self.pdf_margin_right,
                 "margin-top": self.pdf_margin_top,
                 "margin-bottom": self.pdf_margin_bottom,
-                "zoom": self.pdf_zoom,
+                "zoom": self.pdf_output_zoom,
                 # 'disable-smart-shrinking': '',
             },
         )
@@ -90,8 +101,7 @@ class Pdf2Html2PdfFormat(Format):
         """Alter only on HTML format"""
         self.html_format.apply_alters()
 
-    @staticmethod
-    def get_html_pages_from_pdf(pdf_bytes) -> Dict[int, str]:
+    def get_html_pages_from_pdf(self, pdf_bytes) -> Dict[int, str]:
         """
         Converts PDF to HTML with htmltopdf (from poppler-utils: https://poppler.freedesktop.org/)
 
@@ -102,7 +112,9 @@ class Pdf2Html2PdfFormat(Format):
         file_prefix = "pdf"
         tmpdir = tempfile.mkdtemp(prefix="pdftohtml-")
 
-        process = run(["pdftohtml", "-c", "-", tmpdir + "/" + file_prefix], stdout=PIPE, input=pdf_bytes)  # , encoding='ascii'
+        process = run(
+            ["pdftohtml", "-zoom", self.pdf_input_zoom, "-c", "-", tmpdir + "/" + file_prefix], stdout=PIPE, input=pdf_bytes
+        )  # , encoding='ascii'
 
         if process.returncode != 0:
             raise FormatError("pdftohtml returned error exit code: %s" % process.returncode)
