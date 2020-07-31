@@ -37,6 +37,8 @@ class Pdf2Html2PdfFormat(Format):
         pdf_margin_bottom="0",
         pdf_output_zoom="1.6",
         pdf_input_zoom="1.0",
+        pdftohtml_path="pdftohtml",
+        wkhtmltopdf_path="wkhtmltopdf",
     ):
         """
         For PDF settings see pdfkit (wkhtmltopdf) documentation
@@ -50,6 +52,8 @@ class Pdf2Html2PdfFormat(Format):
         self.pdf_margin_bottom = pdf_margin_bottom
         self.pdf_output_zoom = pdf_output_zoom
         self.pdf_input_zoom = pdf_input_zoom
+        self.pdftohtml_path = pdftohtml_path
+        self.wkhtmltopdf_path = wkhtmltopdf_path
 
     def load(self, bytes_):
         self.page2html = self.get_html_pages_from_pdf(bytes_)
@@ -113,7 +117,9 @@ class Pdf2Html2PdfFormat(Format):
         tmpdir = tempfile.mkdtemp(prefix="pdftohtml-")
 
         process = run(
-            ["pdftohtml", "-zoom", self.pdf_input_zoom, "-c", "-", tmpdir + "/" + file_prefix], stdout=PIPE, input=pdf_bytes
+            [self.pdftohtml_path, "-zoom", self.pdf_input_zoom, "-c", "-", tmpdir + "/" + file_prefix],
+            stdout=PIPE,
+            input=pdf_bytes,
         )  # , encoding='ascii'
 
         if process.returncode != 0:
@@ -151,3 +157,7 @@ class Pdf2Html2PdfFormat(Format):
         page2html = collections.OrderedDict(sorted(page2html.items()))
 
         return page2html
+
+    def is_installed(self):
+        # Check if dependencies are installed
+        return shutil.which(self.pdftohtml_path) is not None and shutil.which(self.wkhtmltopdf_path) is not None

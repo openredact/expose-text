@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from expose_text import FileWrapper
+from expose_text.formats.pdf.pdf2html2pdf import Pdf2Html2PdfFormat
 
 black_square = u"\u25A0"
 
@@ -40,3 +41,7 @@ def test_pdf_text(tmp_files, test_files):
     # assert "XXXXXXX" == fw.text[0:7]  # TODO there is something wrong with indexing
 
     fw.save(output_fp)
+
+
+def test_check_dependencies():
+    print(Pdf2Html2PdfFormat().is_installed())
