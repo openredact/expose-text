@@ -133,6 +133,17 @@ The tests can be executed with:
 pytest --doctest-modules --cov-report term --cov=expose_text
 ```
 
+
+### Testing in Docker
+
+You can run the test as well in a Docker container:
+
+```bash
+docker build -t expose-text
+docker run expose-text
+```
+
+
 ## How to contact us
 
 For usage questions, bugs, or suggestions please file a Github issue.

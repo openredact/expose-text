@@ -1,5 +1,6 @@
 import base64
 import collections
+import logging
 import os
 import re
 import shutil
@@ -12,6 +13,8 @@ import pdfkit
 from expose_text.exceptions import FormatError
 from expose_text.formats._html import HtmlFormat
 from expose_text.formats.base import Format
+
+logger = logging.getLogger(__name__)
 
 
 class Pdf2Html2PdfFormat(Format):
@@ -62,6 +65,7 @@ class Pdf2Html2PdfFormat(Format):
         pages_html = [html for page, html in self.page2html.items()]
 
         # print('Pages: %s' % [page for page, html in self.page2html.items()])
+        logger.info("Loading only a single page")
         pages_html = self.page2html[1]
 
         self.html_format.load(("".join(pages_html)).encode("utf-8"))
@@ -116,19 +120,23 @@ class Pdf2Html2PdfFormat(Format):
         file_prefix = "pdf"
         tmpdir = tempfile.mkdtemp(prefix="pdftohtml-")
 
-        process = run(
-            [self.pdftohtml_path, "-zoom", self.pdf_input_zoom, "-c", "-", tmpdir + "/" + file_prefix],
-            stdout=PIPE,
-            input=pdf_bytes,
-        )  # , encoding='ascii'
+        run_args = [self.pdftohtml_path, "-zoom", self.pdf_input_zoom, "-c", "-", tmpdir + "/" + file_prefix]
+
+        logger.debug(f"Execute poppler-pdftohtml: {run_args}")
+
+        process = run(run_args, stdout=PIPE, input=pdf_bytes,)  # , encoding='ascii'
 
         if process.returncode != 0:
             raise FormatError("pdftohtml returned error exit code: %s" % process.returncode)
 
         # Iterate over output files
-        for fn in os.listdir(tmpdir):
+        tmp_files = os.listdir(tmpdir)
+        logger.error(tmp_files)
+
+        for fn in tmp_files:
             if fn.startswith(file_prefix + "-") and fn.endswith(".html"):
                 # Page file
+                logger.debug(f"PDF-page file: {file_prefix}")
                 page_num = int(fn[len(file_prefix) + 1 : -5])
 
                 with open(os.path.join(tmpdir, fn), "r") as f:
