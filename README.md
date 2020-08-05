@@ -45,7 +45,7 @@ This is how you can expose the text inside a file:
 >>> wrapper.text
 'This is the new content as string.'
 
->>> fw.save('newfile.docx')
+>>> wrapper.save('newfile.docx')
 ```
 
 If you want to work directly with binary data you have to provide the file format:
@@ -60,7 +60,7 @@ If you want to work directly with binary data you have to provide the file forma
 >>> wrapper.text
 'This is the new content as string.'
 
->>> bw.bytes  # get the modified file as bytes
+>>> wrapper.bytes  # get the modified file as bytes
 b'...'
 ```
 
