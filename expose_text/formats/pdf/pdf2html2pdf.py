@@ -68,7 +68,7 @@ class Pdf2Html2PdfFormat(Format):
         logger.info("Loading only a single page")
         pages_html = self.page2html[1]
 
-        self.html_format.load(("".join(pages_html)).encode("utf-8"))
+        self.html_format.load(("".join(pages_html)).replace("&#160;", " ").encode("utf-8"))
 
     @property
     def text(self):
