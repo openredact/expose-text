@@ -14,9 +14,9 @@ _**:warning: Disclaimer :warning::**_ This is a prototype. Do not use for anythi
 ## What is ExposeText?
 
 Dealing with document file formats can be quite painful.
-Many times you have to write code that’s specific to one format.
+Oftentimes code must be written that’s specific to one file format.
 We have written ExposeText with the goal to make modifying documents as simple as changing Python strings.
-A slice of the original document can directly be assigned a new content by using the character indices of the extracted text, all while keeping the document's original formatting.
+A slice of the original document can be directly assigned a new content by using the character indices of the extracted text, all while keeping the document's original formatting.
 
 We published a blog post about ExposeText on [Medium](https://medium.com/@openredact/introducing-exposetext-modify-document-files-as-simply-as-strings-cc5caa5f9c66?source=friends_link&sk=825c8f64dfa4e943b66d1faf351340a2).
 
@@ -30,12 +30,12 @@ ExposeText has prototypical support for the following file formats:
   - Per default, the encoding is assumed to be UTF-8.
   - If you install [chardet](https://github.com/chardet/chardet) (`pip install chardet`), the encoding can be detected automatically in most cases.
 - .html
-  - You can either pass an HTML snippet, an HTML body or a complete HTML document. If you pass a complete HTML document, every text content outside the body is ignored.
+  - You can pass either an HTML snippet, an HTML body or a complete HTML document. If you pass a complete HTML document, every text content outside the body is ignored.
   - The output file will always be encoded in UTF-8.
 - .docx
   - Only text within `<w:t>` tags (the tags for anything that is text) is exposed. E.g. the mailto link of an e-mail address is not exposed.
 - .pdf
-  - Per default, text in PDFs can only be replaced with characters that occur in the file (fonts are stored very economically in PDF files).
+  - Per default, text in PDFs can only be replaced with characters that occur in the file (fonts are stored economically in PDF files).
   - If you install the additional dependencies [Poppler (pdftohtml)](https://poppler.freedesktop.org/) and [wkhtmltopdf](https://wkhtmltopdf.org/), the PDF is rerendered and there is no more restriction on the characters that can be used.
 
 
