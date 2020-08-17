@@ -11,29 +11,44 @@
 
 _**:warning: Disclaimer :warning::**_ This is a prototype. Do not use for anything critical.
 
-## What is ExposeText
+## What is ExposeText?
 
-ExposeText extracts the plain text in a document and gives you an API to modify it.
-This enables you to modify various file formats as easily as strings while keeping the original formatting.
+Dealing with document file formats can be quite painful.
+Many times you have to write code that’s specific to one format.
+We have written ExposeText with the goal to make modifying documents as simple as changing Python strings.
+A slice of the original document can directly be assigned a new content by using the character indices of the extracted text, all while keeping the document's original formatting.
+
+We published a blog post about ExposeText on [Medium](https://medium.com/@openredact/introducing-exposetext-modify-document-files-as-simply-as-strings-cc5caa5f9c66?source=friends_link&sk=825c8f64dfa4e943b66d1faf351340a2).
+
+![](docs/expose-text.png "Exposing the plain text content, then modifying it")
 
 ## Supported Formats
 
+ExposeText has prototypical support for the following file formats:
+
 - .txt
-  - The encoding is automatically detected using [chardet](https://github.com/chardet/chardet) which should work fine in most cases.
+  - Per default, the encoding is assumed to be UTF-8.
+  - If you install [chardet](https://github.com/chardet/chardet) (`pip install chardet`), the encoding can be detected automatically in most cases.
 - .html
-  - You can either pass an HTML snippet, a body or a complete HTML document. If you pass a complete HTML document, everything but the body is ignored.
+  - You can either pass an HTML snippet, an HTML body or a complete HTML document. If you pass a complete HTML document, every text content outside the body is ignored.
   - The output file will always be encoded in UTF-8.
 - .docx
-  - Only text within `<w:t>` tags is exposed. E.g. the mailto link of an e-mail address is not exposed.
-- .pdf 
-  - PDF processing requires additional dependencies: [Poppler (pdftohtml)](https://poppler.freedesktop.org/) and [wkhtmltopdf](https://wkhtmltopdf.org/)
+  - Only text within `<w:t>` tags (the tags for anything that is text) is exposed. E.g. the mailto link of an e-mail address is not exposed.
+- .pdf
+  - Per default, text in PDFs can only be replaced with characters that occur in the file (fonts are stored very economically in PDF files).
+  - If you install the additional dependencies [Poppler (pdftohtml)](https://poppler.freedesktop.org/) and [wkhtmltopdf](https://wkhtmltopdf.org/), the PDF is rerendered and there is no more restriction on the characters that can be used.
 
 
 ## Usage
 
-You can use ExposeText on files and binary data objects.
+ExposeText supports files as well as binary data objects.
+Depending on your use case you can use one of the following interfaces for making modifications.
 
-This is how you can expose the text inside a file:
+### Slicing API
+
+The slicing API applies each alteration immediately.
+
+Exposing and modifying text inside a file:
 ```python
 >>> from expose_text import FileWrapper
 >>>
@@ -45,10 +60,14 @@ This is how you can expose the text inside a file:
 >>> wrapper.text
 'This is the new content as string.'
 
+>>> wrapper[33] = '!'  # note that you have to use the updated index here
+>>> wrapper.text
+'This is the new content as string!'
+
 >>> wrapper.save('newfile.docx')
 ```
 
-If you want to work directly with binary data you have to provide the file format:
+If you want to work directly with binary data you have to pass the file format:
 ```python
 >>> from expose_text import BinaryWrapper
 >>>
@@ -64,11 +83,9 @@ If you want to work directly with binary data you have to provide the file forma
 b'...'
 ```
 
-Depending on your usecase use one of the following interfaces for making modifications.
-
 ### Functional API
 
-Queue several alterations based on the initial indices and then apply them.
+With the functional API, you can queue several alterations based on the initial indices and then apply them together.
 ```python
 >>> wrapper.text
 'This is the content as string.'
@@ -80,41 +97,19 @@ Queue several alterations based on the initial indices and then apply them.
 'This is the new content as string!'
 ```
 
-### Slicing API
-
-Make and immediately apply a single alteration.
-```python
->>> wrapper.text
-'This is the content as string.'
-
->>> wrapper[12:19] = 'new content'
->>> wrapper.text
-'This is the new content as string.'
-
->>> wrapper[33] = '!'  # note that you have to use the updated index here
->>> wrapper.text
-'This is the new content as string!'
-```
-
 ## Development
 
 ### Install requirements
 
-You can install all requirements using:
+You can install all (production and development) requirements using:
 
 ```
 pip install -r requirements.txt
 ```
 
-Compared to installation with `setup.py`, [requirements.txt](requirements.txt) additionally installs developer dependencies.
-
-To install it using `setup.py` run:
-
-```
-pip install .
-```
-
 ### Install the pre-commit hooks
+
+This repository uses git hooks to validate code quality and formatting.
 
 ```
 pre-commit install
@@ -133,7 +128,6 @@ The tests can be executed with:
 pytest --doctest-modules --cov-report term --cov=expose_text
 ```
 
-
 ### Testing in Docker
 
 You can run the test as well in a Docker container:
@@ -143,11 +137,10 @@ docker build -t expose-text
 docker run expose-text
 ```
 
-
 ## How to contact us
 
 For usage questions, bugs, or suggestions please file a Github issue.
-If you would like to contribute or have other questions please email hello@openredact.org
+If you would like to contribute or have other questions please email hello@openredact.org.
 
 ## License
 
