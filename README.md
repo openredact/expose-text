@@ -52,30 +52,30 @@ Exposing and modifying text inside a file:
 ```python
 >>> from expose_text import FileWrapper
 >>>
->>> wrapper = FileWrapper('myfile.docx')
+>>> wrapper = FileWrapper("myfile.docx")
 >>> wrapper.text
 'This is the content as string.'
 
->>> wrapper[12:19] = 'new content'
+>>> wrapper[12:19] = "new content"
 >>> wrapper.text
 'This is the new content as string.'
 
->>> wrapper[33] = '!'  # note that you have to use the updated index here
+>>> wrapper[33] = "!"  # note that you have to use the updated index here
 >>> wrapper.text
 'This is the new content as string!'
 
->>> wrapper.save('newfile.docx')
+>>> wrapper.save("newfile.docx")
 ```
 
 If you want to work directly with binary data you have to pass the file format:
 ```python
 >>> from expose_text import BinaryWrapper
 >>>
->>> wrapper = BinaryWrapper(my_bytes, '.docx')
+>>> wrapper = BinaryWrapper(my_bytes, ".docx")
 >>> wrapper.text
 'This is the content as string.'
 
->>> wrapper[12:19] = 'new content'
+>>> wrapper[12:19] = "new content"
 >>> wrapper.text
 'This is the new content as string.'
 
@@ -90,8 +90,8 @@ With the functional API, you can queue several alterations based on the initial 
 >>> wrapper.text
 'This is the content as string.'
 
->>> wrapper.add_alter(12, 19, 'new content')
->>> wrapper.add_alter(29, 30, '!')
+>>> wrapper.add_alter(12, 19, "new content")
+>>> wrapper.add_alter(29, 30, "!")
 >>> wrapper.apply_alters()
 >>> wrapper.text
 'This is the new content as string!'
