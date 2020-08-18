@@ -1,7 +1,11 @@
-import chardet
-
 from expose_text.formats._utils import apply_buffer_to_text
 from expose_text.formats.base import Format
+
+# chardet is LGPL, link it dynamically
+try:
+    import chardet
+except ModuleNotFoundError:
+    chardet = None
 
 
 class TxtFormat(Format):
@@ -9,7 +13,12 @@ class TxtFormat(Format):
     _content = ""
 
     def load(self, bytes_):
-        self._encoding = chardet.detect(bytes_)["encoding"]
+        if chardet:
+            self._encoding = chardet.detect(bytes_)["encoding"]
+        else:
+            # if the encoding is not detected dynamically, it is assumed to be UTF-8
+            self._encoding = "UTF-8"
+
         self._content = bytes_.decode(self._encoding)
 
     @property

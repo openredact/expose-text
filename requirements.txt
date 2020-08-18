@@ -4,9 +4,9 @@ wkhtmltopdf==0.2
 pdfkit==0.6.1
 defusedxml==0.6.0
 beautifulsoup4==4.9.1
-chardet==3.0.4
 
 # Development dependencies
+chardet==3.0.4
 pre-commit==2.2.0
 pytest==5.4.1
 pytest-cov==2.8.1

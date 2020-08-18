@@ -28,7 +28,7 @@ ExposeText has prototypical support for the following file formats:
 
 - .txt
   - Per default, the encoding is assumed to be UTF-8.
-  - If you install [chardet](https://github.com/chardet/chardet) (`pip install chardet`), the encoding can be detected automatically in most cases.
+  - You can install [chardet](https://github.com/chardet/chardet) (`pip install chardet`), to automatically detect the encoding.
 - .html
   - You can pass either an HTML snippet, an HTML body or a complete HTML document. If you pass a complete HTML document, every text content outside the body is ignored.
   - The output file will always be encoded in UTF-8.
