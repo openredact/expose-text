@@ -4,6 +4,7 @@
 
 ---
 
+[![PyPI version](https://badge.fury.io/py/expose-text.svg)](https://badge.fury.io/py/expose-text)
 ![Tests](https://github.com/openredact/expose-text/workflows/Tests/badge.svg?branch=master)
 ![Black & Flake8](https://github.com/openredact/expose-text/workflows/Black%20&%20Flake8/badge.svg?branch=master)
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
@@ -20,7 +21,7 @@ A slice of the original document can be directly assigned a new content by using
 
 We published a blog post about ExposeText on [Medium](https://medium.com/@openredact/introducing-exposetext-modify-document-files-as-simply-as-strings-cc5caa5f9c66?source=friends_link&sk=825c8f64dfa4e943b66d1faf351340a2).
 
-![](docs/expose-text.png "Exposing the plain text content, then modifying it")
+![](https://raw.githubusercontent.com/openredact/expose-text/master/docs/expose-text.png "Exposing the plain text content, then modifying it")
 
 ## Supported Formats
 
@@ -43,6 +44,14 @@ ExposeText has prototypical support for the following file formats:
 
 ExposeText supports files as well as binary data objects.
 Depending on your use case you can use one of the following interfaces for making modifications.
+
+### Installation
+
+`expose-text` can be installed from PyPi and has to be installed in a virtual environment (venv or conda for instance)
+
+```bash
+pip install expose-text
+```
 
 ### Slicing API
 
