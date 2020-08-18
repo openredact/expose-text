@@ -4,7 +4,7 @@ from setuptools import find_packages
 
 setup(
     name="expose-text",
-    version="0.1.1b",
+    version="0.1.2",
     url="https://openredact.org/",
     author="Jonas Langhabel, Malte Ostendorff",
     author_email="hello@openredact.org",
