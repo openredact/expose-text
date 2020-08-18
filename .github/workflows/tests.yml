@@ -1,12 +1,6 @@
 name: Tests
 
-on:
-  push:
-    branches:
-      - master
-      - refs/tags/*
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
