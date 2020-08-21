@@ -10,7 +10,7 @@
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
-_**:warning: Disclaimer :warning::**_ This is a prototype. Do not use for anything critical.
+_**⚠️ Disclaimer ⚠️:**_ This is a prototype. Do not use for anything critical.
 
 ## What is ExposeText?
 
@@ -47,7 +47,7 @@ Depending on your use case you can use one of the following interfaces for makin
 
 ### Installation
 
-`expose-text` can be installed from PyPi and has to be installed in a virtual environment (venv or conda for instance)
+`expose-text` can be installed from PyPi and has to be installed in a virtual environment (venv or conda for instance).
 
 ```bash
 pip install expose-text
