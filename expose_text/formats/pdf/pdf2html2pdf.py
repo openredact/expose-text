@@ -81,7 +81,7 @@ class Pdf2Html2PdfFormat(Format):
 
     @property
     def bytes(self):
-        """Generate PDF from HTML bytes with pdfkit (wkhtmltopdf) """
+        """Generate PDF from HTML bytes with pdfkit (wkhtmltopdf)"""
         html_bytes = self.html_format.bytes
 
         pdf_bytes = pdfkit.from_string(
@@ -124,7 +124,7 @@ class Pdf2Html2PdfFormat(Format):
 
         logger.debug(f"Execute poppler-pdftohtml: {run_args}")
 
-        process = run(run_args, stdout=PIPE, input=pdf_bytes,)  # , encoding='ascii'
+        process = run(run_args, stdout=PIPE, input=pdf_bytes)  # , encoding='ascii'
 
         if process.returncode != 0:
             raise FormatError("pdftohtml returned error exit code: %s" % process.returncode)

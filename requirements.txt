@@ -7,6 +7,6 @@ beautifulsoup4==4.9.1
 
 # Development dependencies
 chardet==3.0.4
-pre-commit==2.2.0
+pre-commit==2.16.0
 pytest==5.4.1
 pytest-cov==2.8.1
