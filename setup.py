@@ -14,6 +14,6 @@ setup(
     description="A Python module that exposes text for modification in multiple file types.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    install_requires=["pdfrw==0.4", "defusedxml==0.6.0", "beautifulsoup4==4.9.1", "wkhtmltopdf==0.2", "pdfkit==0.6.1"],
+    install_requires=["pdfrw>=0.4", "defusedxml>=0.6.0", "beautifulsoup4>=4.9.1", "wkhtmltopdf>=0.2", "pdfkit>=0.6.1"],
     python_requires=">=3.7",
 )
