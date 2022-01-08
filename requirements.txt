@@ -4,6 +4,7 @@ wkhtmltopdf==0.2
 pdfkit==0.6.1
 defusedxml==0.6.0
 beautifulsoup4==4.9.1
+filetype==1.0.9
 
 # Development dependencies
 chardet==3.0.4
