@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from typing import Union
 
+import filetype
+
 from expose_text.formats import registry
 
 registry.register_formats()
@@ -143,7 +145,15 @@ class FileWrapper(BinaryWrapper):
         :param file_path: Path to input file
         :param format_cls: Specific Format class (if not set, class is determined based on file extension)
         """
-        _, extension = os.path.splitext(file_path)
+        guessed_type = filetype.guess(file_path)
+        if guessed_type is not None:
+            extension = "." + guessed_type.extension
+            if extension == ".zip":
+                # assume this is docx in the context of this package, also see https://github.com/h2non/filetype.py/issues/16
+                # TODO this should be further validated
+                extension = ".docx"
+        else:
+            _, extension = os.path.splitext(file_path)
 
         with open(file_path, "rb") as f:
             bytes_ = f.read()
